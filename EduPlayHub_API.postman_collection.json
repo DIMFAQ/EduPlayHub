@@ -1,0 +1,174 @@
+{
+  "info": {
+    "name": "EduPlayHub API",
+    "description": "API Collection untuk Testing Backend EduPlayHub",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🛍️ CHECKOUT",
+      "item": [
+        {
+          "name": "Checkout - Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 1\n    },\n    {\n      \"product_id\": 2,\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/checkout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "checkout"
+              ]
+            },
+            "description": "Create order dengan beberapa produk"
+          }
+        },
+        {
+          "name": "Checkout - Get Order Detail",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/checkout/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "checkout",
+                "1"
+              ]
+            },
+            "description": "Lihat detail order tertentu"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 PAYMENT",
+      "item": [
+        {
+          "name": "Payment - Get QRIS Info",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/payment/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "payment",
+                "1"
+              ]
+            },
+            "description": "Lihat info pembayaran dan QRIS code untuk order tertentu"
+          }
+        },
+        {
+          "name": "Payment - Upload Proof",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "order_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "proof_image",
+                  "value": "",
+                  "type": "file"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/payment/upload",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "payment",
+                "upload"
+              ]
+            },
+            "description": "Upload bukti pembayaran (image file)"
+          }
+        },
+        {
+          "name": "Payment - Verify Payment [ADMIN]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/payment/verify",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "payment",
+                "verify"
+              ]
+            },
+            "description": "Admin verifikasi pembayaran"
+          }
+        },
+        {
+          "name": "Payment - Get Pending Verifications [ADMIN]",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/payment/pending-verifications",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "payment",
+                "pending-verifications"
+              ]
+            },
+            "description": "Admin lihat daftar pembayaran yang menunggu verifikasi"
+          }
+        }
+      ]
+    }
+  ]
+}
