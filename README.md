@@ -1,33 +1,379 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎓 EduPlayHub Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Platform e-commerce untuk rental & pembelian alat mahasiswa**
 
-## About Laravel
+REST API backend dibangun dengan **Laravel 11** dan **MySQL**, menyediakan sistem checkout dan pembayaran QRIS yang simulasi untuk keperluan demo.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+✅ **Sistem Checkout**
+- Tambah produk ke pesanan
+- Auto validasi stok
+- Perhitungan harga otomatis
+- Status tracking: pending → paid
 
-## Learning Laravel
+✅ **Pembayaran QRIS (Simulasi)**
+- Generate QRIS code dummy
+- Upload bukti pembayaran (image)
+- Admin verifikasi pembayaran
+- Update status order otomatis
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+✅ **Database Terstruktur**
+- Tabel: `produk`, `pesanan`, `item_pesanan`, `pembayaran`, `users`
+- Relasi Eloquent lengkap
+- Foreign key constraints
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+✅ **API RESTful**
+- 6 endpoint siap pakai
+- Input validation lengkap
+- Error handling
+- JSON response
 
-## Laravel Sponsors
+---
+
+## 🛠️ Tech Stack
+
+| Komponen | Teknologi |
+|----------|-----------|
+| Backend Framework | Laravel 11 |
+| Database | MySQL 8.0+ |
+| Language | PHP 8.2+ |
+| Language | PHP 8.2+ |
+| API Format | RESTful JSON |
+| Version Control | Git |
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+```
+- PHP 8.2+
+- MySQL 8.0+ (running)
+- Composer
+- Git
+```
+
+### Installation
+
+1. **Clone repository**
+```bash
+git clone https://github.com/DIMFAQ/EduPlayHub.git
+cd EduPlayHub
+```
+
+2. **Install dependencies**
+```bash
+composer install
+```
+
+3. **Setup environment**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. **Configure database** (edit `.env`)
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=eduplayhub
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+5. **Run migration & seed**
+```bash
+php artisan migrate --fresh --seed
+```
+
+6. **Create storage link**
+```bash
+php artisan storage:link
+```
+
+7. **Start server**
+```bash
+php artisan serve
+```
+
+Server running di: **http://localhost:8000**
+
+---
+
+## 📚 API Endpoints
+
+### 🛍️ CHECKOUT
+```
+POST /api/checkout              → Create pesanan baru
+GET /api/checkout/{id}          → Get detail pesanan
+```
+
+### 💳 PAYMENT
+```
+GET /api/payment/{id}           → Get QRIS info
+POST /api/payment/upload        → Upload bukti pembayaran
+POST /api/payment/verify        → [ADMIN] Verifikasi pembayaran
+GET /api/payment/pending-verifs → [ADMIN] List pending payments
+```
+
+---
+
+## 📖 Example Request/Response
+
+### 1. Checkout
+```bash
+POST /api/checkout
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "items": [
+    {"product_id": 1, "quantity": 1},
+    {"product_id": 2, "quantity": 2}
+  ]
+}
+```
+
+**Response (201):**
+```json
+{
+  "message": "Checkout berhasil",
+  "order": {
+    "id": 1,
+    "user_id": 1,
+    "total_price": "25000000.00",
+    "status": "pending",
+    "itemPesanan": [...],
+    "pembayaran": {...}
+  }
+}
+```
+
+### 2. Get Payment Info
+```bash
+GET /api/payment/1
+```
+
+**Response (200):**
+```json
+{
+  "order_id": 1,
+  "amount": "25000000.00",
+  "payment_status": "pending",
+  "qris_code": "000201263600...",
+  "qris_image_url": "https://api.qrserver.com/...",
+  "instructions": "Gunakan aplikasi e-wallet untuk memindai QRIS"
+}
+```
+
+### 3. Upload Proof
+```bash
+POST /api/payment/upload
+Content-Type: multipart/form-data
+
+Form Data:
+- order_id: 1
+- proof_image: [screenshot.jpg]
+```
+
+**Response (200):**
+```json
+{
+  "message": "Bukti pembayaran berhasil diupload",
+  "image_url": "http://localhost:8000/storage/payment_proofs/..."
+}
+```
+
+---
+
+## 🗄️ Database Schema
+
+### Tabel Structure
+
+**produk** (produk)
+```
+id, name, description, price, stock, image_url, type, timestamps
+```
+
+**pesanan** (orders)
+```
+id, user_id (FK), total_price, status, timestamps
+```
+
+**item_pesanan** (order_items)
+```
+id, pesanan_id (FK), produk_id (FK), quantity, unit_price, subtotal, timestamps
+```
+
+**pembayaran** (payments)
+```
+id, pesanan_id (FK), amount, status, proof_image_path, qris_code, verified_at, timestamps
+```
+
+---
+
+## 📁 Project Structure
+
+```
+eduplay-backend/
+├── app/
+│   ├── Http/
+│   │   └── Controllers/
+│   │       ├── CheckoutController.php
+│   │       └── PaymentController.php
+│   └── Models/
+│       ├── Product.php
+│       ├── Order.php
+│       ├── OrderItem.php
+│       ├── Payment.php
+│       └── User.php
+│
+├── database/
+│   ├── migrations/
+│   │   ├── ...create_produk_table.php
+│   │   ├── ...create_pesanan_table.php
+│   │   ├── ...create_item_pesanan_table.php
+│   │   └── ...create_pembayaran_table.php
+│   └── seeders/
+│       ├── ProductSeeder.php
+│       └── DatabaseSeeder.php
+│
+├── routes/
+│   └── api.php
+│
+├── SETUP_GUIDE.md              → Setup lengkap
+├── API_RESPONSE_EXAMPLES.md     → Contoh response
+├── EduPlayHub_API.postman_collection.json
+└── README.md
+```
+
+---
+
+## 🧪 Testing dengan Postman
+
+**Import collection:**
+1. Buka Postman
+2. Click `Import` → pilih file `EduPlayHub_API.postman_collection.json`
+3. Semua endpoint sudah tersedia
+
+**Test User (seed):**
+- ID: 1
+- Email: test@example.com
+- Password: password
+
+**Test Products:** 8 produk sudah tersedia (Laptop, Projector, Printer, dll)
+
+---
+
+## 📋 Test Flow (Demo)
+
+```
+1. POST /api/checkout
+   ↓ Buat pesanan baru
+   
+2. GET /api/payment/{order_id}
+   ↓ Terima QRIS code
+
+3. POST /api/payment/upload
+   ↓ Upload bukti pembayaran (image)
+
+4. POST /api/payment/verify [ADMIN]
+   ↓ Verifikasi pembayaran
+
+5. GET /api/checkout/{order_id}
+   ↓ Lihat order status = "paid" ✅
+```
+
+---
+
+## 🔑 Key Features
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Validation** | Input validation lengkap di semua endpoint |
+| **Error Handling** | Custom error response dengan HTTP status |
+| **Stock Management** | Auto decrement saat checkout |
+| **Eloquent ORM** | Relasi model lengkap (hasMany, belongsTo, hasOne) |
+| **Transaction** | Database transaction untuk checkout |
+| **File Upload** | Simpan bukti pembayaran di storage |
+| **QRIS Simulasi** | Generate QRIS code & QR image dummy |
+
+---
+
+## 🐛 Troubleshooting
+
+| Masalah | Solusi |
+|--------|--------|
+| **"Table doesn't exist"** | `php artisan migrate:fresh --seed` |
+| **"vendor not found"** | `composer install` |
+| **"Permission denied"** | `chmod -R 755 storage` |
+| **"APP_KEY missing"** | `php artisan key:generate` |
+| **"Database connection error"** | Cek `.env` DB config & MySQL running |
+
+---
+
+## 📝 Environment Variables
+
+```env
+APP_NAME=EduPlayHub
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=eduplayhub
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+---
+
+## 🚧 Future Improvements
+
+- [ ] Integration Midtrans/Xendit payment gateway
+- [ ] Fitur rental (date range & durasi)
+- [ ] Authentication (JWT/Sanctum)
+- [ ] Admin dashboard
+- [ ] Email notifications
+- [ ] Unit & integration tests
+- [ ] Pagination & search
+- [ ] Rate limiting
+
+---
+
+## 📄 Dokumentasi Lengkap
+
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Setup step-by-step
+- **[API_RESPONSE_EXAMPLES.md](API_RESPONSE_EXAMPLES.md)** - Contoh request/response
+- **[Laravel Documentation](https://laravel.com/docs)** - Official docs
+
+---
+
+## 👤 Author
+
+**DIMFAQ** (Dimas Faqih)
+- Email: dimasfaqih005@gmail.com
+- GitHub: [@DIMFAQ](https://github.com/DIMFAQ)
+
+---
+
+## 📄 License
+
+Open source project untuk keperluan akademis.
+
+---
+
+## ✨ Status
+
+🟢 **Production Ready** - Siap untuk demo!
+
+Last Updated: April 20, 2026
 
 We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
