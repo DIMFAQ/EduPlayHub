@@ -13,7 +13,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) return redirect()->intended(route('catalog'));
-        return view('auth.login');
+        return view('auth.form', ['mode' => 'login']);
     }
 
     public function login(Request $request)
@@ -38,7 +38,7 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        return view('auth.register');
+        return view('auth.form', ['mode' => 'register']);
     }
 
     public function register(Request $request)
