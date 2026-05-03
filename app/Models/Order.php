@@ -1,39 +1,49 @@
 <?php
-
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Order extends Model
-{
-    use HasFactory;
-
-    protected $table = 'pesanan';
-
+class Order extends Model {
     protected $fillable = [
-        'user_id',
-        'total_price',
-        'status',
+        'order_number','user_id','shop_id','type','status',
+        'recipient_name','address','city','postal_code','phone',
+        'payment_method','subtotal','shipping_cost','discount','total',
+        'voucher_code','rental_start','rental_end','rental_days',
     ];
-
     protected $casts = [
-        'total_price' => 'decimal:2',
+        'rental_start' => 'date',
+        'rental_end'   => 'date',
     ];
 
-    public function user()
+    public function user()  { return $this->belongsTo(User::class); }
+    public function shop()  { return $this->belongsTo(Shop::class); }
+    public function items() { return $this->hasMany(OrderItem::class); }
+
+    public function statusLabel(): string
     {
-        return $this->belongsTo(User::class);
+        return match($this->status) {
+            'masuk'      => 'Pesanan Masuk',
+            'proses'     => 'Diproses',
+            'kirim'      => 'Dikirim',
+            'selesai'    => 'Selesai',
+            'dibatalkan' => 'Dibatalkan',
+            default      => $this->status,
+        };
     }
 
-    public function itemPesanan()
+    public function statusColor(): string
     {
-        return $this->hasMany(OrderItem::class, 'pesanan_id');
+        return match($this->status) {
+            'masuk'      => 'red',
+            'proses'     => 'blue',
+            'kirim'      => 'sky',
+            'selesai'    => 'green',
+            'dibatalkan' => 'gray',
+            default      => 'blue',
+        };
     }
 
-    public function pembayaran()
+    public function fmtTotal(): string
     {
-        return $this->hasOne(Payment::class, 'pesanan_id');
+        return 'Rp ' . number_format($this->total, 0, ',', '.');
     }
 }
-

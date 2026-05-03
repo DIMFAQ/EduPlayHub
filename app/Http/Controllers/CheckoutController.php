@@ -2,117 +2,136 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Payment;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
-    /**
-     * POST /api/checkout
-     * Checkout produk dan buat order baru
-     */
-    public function checkout(Request $request)
+    public function index()
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:produk,id',
-            'items.*.quantity' => 'required|integer|min:1',
+        $items = Auth::user()->cartItems()
+            ->with('product.shop')
+            ->where('selected', true)
+            ->get();
+
+        if ($items->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Pilih produk untuk di-checkout.');
+        }
+
+        $subtotal   = $items->sum(fn($i) => ($i->product->price_rent ?? $i->product->price_buy ?? 0) * $i->quantity);
+        $voucher    = session('voucher');
+        $discount   = 0;
+        if ($voucher) {
+            $v = Voucher::where('code', $voucher)->first();
+            if ($v && $v->isValid()) $discount = $v->calcDiscount($subtotal);
+        }
+        $shipping    = 15000;
+        $total       = max(0, $subtotal - $discount + $shipping);
+        $cartCount   = Auth::user()->cartCount();
+
+        return view('buyer.checkout', compact('items', 'subtotal', 'discount', 'shipping', 'total', 'voucher', 'cartCount'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'recipient_name'  => 'required|string',
+            'address'         => 'required|string',
+            'city'            => 'required|string',
+            'postal_code'     => 'required|string',
+            'phone'           => 'required|string',
+            'payment_method'  => 'required|in:transfer,cod,ewallet',
+            'trans_type'      => 'required|in:beli,sewa',
+            'rental_start'    => 'nullable|date|required_if:trans_type,sewa',
+            'rental_end'      => 'nullable|date|after_or_equal:rental_start|required_if:trans_type,sewa',
         ]);
 
-        try {
-            DB::beginTransaction();
+        $items = Auth::user()->cartItems()
+            ->with('product.shop')
+            ->where('selected', true)
+            ->get();
 
-            $totalPrice = 0;
-            $orderItems = [];
-
-            // Hitung total harga dan validasi stok
-            foreach ($validated['items'] as $item) {
-                $product = \App\Models\Product::findOrFail($item['product_id']);
-
-                if ($product->stock < $item['quantity']) {
-                    return response()->json([
-                        'message' => 'Stok produk tidak cukup untuk: ' . $product->name,
-                        'product' => $product->name,
-                        'available_stock' => $product->stock,
-                        'requested_quantity' => $item['quantity'],
-                    ], 400);
-                }
-
-                $subtotal = $product->price * $item['quantity'];
-                $totalPrice += $subtotal;
-
-                $orderItems[] = [
-                    'produk_id' => $product->id,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
-                    'subtotal' => $subtotal,
-                ];
-            }
-
-            // Buat order
-            $order = Order::create([
-                'user_id' => $validated['user_id'],
-                'total_price' => $totalPrice,
-                'status' => 'pending',
-            ]);
-
-            // Tambahkan order items
-            foreach ($orderItems as $item) {
-                $item['pesanan_id'] = $order->id;
-                OrderItem::create($item);
-
-                // Kurangi stok produk
-                $product = \App\Models\Product::find($item['produk_id']);
-                $product->decrement('stock', $item['quantity']);
-            }
-
-            // Buat payment record
-            Payment::create([
-                'pesanan_id' => $order->id,
-                'amount' => $totalPrice,
-                'status' => 'pending',
-                'qris_code' => $this->generateQRISCode($order->id),
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Checkout berhasil',
-                'order' => $order->load('itemPesanan.produk', 'pembayaran'),
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Checkout gagal',
-                'error' => $e->getMessage(),
-            ], 500);
+        if ($items->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang kosong.');
         }
+
+        $subtotal  = $items->sum(fn($i) => ($i->product->price_rent ?? $i->product->price_buy ?? 0) * $i->quantity);
+        $voucher   = session('voucher');
+        $discount  = 0;
+        if ($voucher) {
+            $v = Voucher::where('code', $voucher)->first();
+            if ($v && $v->isValid()) $discount = $v->calcDiscount($subtotal);
+        }
+        $shipping     = 15000;
+        $total        = max(0, $subtotal - $discount + $shipping);
+        $rentalDays   = null;
+        if ($request->trans_type === 'sewa' && $request->rental_start && $request->rental_end) {
+            $rentalDays = \Carbon\Carbon::parse($request->rental_start)
+                ->diffInDays(\Carbon\Carbon::parse($request->rental_end)) + 1;
+        }
+
+        $order = DB::transaction(function () use ($request, $items, $subtotal, $discount, $shipping, $total, $voucher, $rentalDays) {
+            // Group by shop – create one order per shop
+            $shopId = $items->first()->product->shop_id;
+
+            $order = Order::create([
+                'order_number'   => 'EPH-' . strtoupper(Str::random(8)),
+                'user_id'        => Auth::id(),
+                'shop_id'        => $shopId,
+                'type'           => $request->trans_type,
+                'status'         => 'masuk',
+                'recipient_name' => $request->recipient_name,
+                'address'        => $request->address,
+                'city'           => $request->city,
+                'postal_code'    => $request->postal_code,
+                'phone'          => $request->phone,
+                'payment_method' => $request->payment_method,
+                'subtotal'       => $subtotal,
+                'shipping_cost'  => $shipping,
+                'discount'       => $discount,
+                'total'          => $total,
+                'voucher_code'   => $voucher,
+                'rental_start'   => $request->rental_start,
+                'rental_end'     => $request->rental_end,
+                'rental_days'    => $rentalDays,
+            ]);
+
+            foreach ($items as $item) {
+                OrderItem::create([
+                    'order_id'      => $order->id,
+                    'product_id'    => $item->product_id,
+                    'product_name'  => $item->product->name,
+                    'variant'       => $item->variant,
+                    'product_image' => $item->product->image,
+                    'quantity'      => $item->quantity,
+                    'unit_price'    => $item->product->price_rent ?? $item->product->price_buy ?? 0,
+                ]);
+
+                // Increase sales counter
+                $item->product->increment('total_rented');
+            }
+
+            // Clear selected cart items
+            CartItem::where('user_id', Auth::id())->where('selected', true)->delete();
+            session()->forget('voucher');
+
+            return $order;
+        });
+
+        return redirect()->route('checkout.success', $order)->with('success', 'Pesanan berhasil dibuat!');
     }
 
-    private function generateQRISCode($orderId)
+    public function success(Order $order)
     {
-        // Simulasi QRIS code (dummy)
-        $qrisCode = "00020126360014ID.CO.WEBSTATIC01051198010303UME51570010A000000000001234520400005303360406110412345678901520423081810502100063041032500820320000321012312345678901234567890215EduPlay";
-        $qrisCode .= $orderId;
-        $qrisCode .= "5206001562290525EEC18001234.1234.0606051040100";
-        $qrisCode .= substr(str_pad($orderId, 12, '0', STR_PAD_LEFT), -12);
-        $qrisCode .= "63047BB5";
-        return $qrisCode;
-    }
-
-    /**
-     * GET /api/orders/{order_id}
-     * Ambil detail order
-     */
-    public function getOrder($orderId)
-    {
-        $order = Order::with('user', 'itemPesanan.produk', 'pembayaran')
-            ->findOrFail($orderId);
-
-        return response()->json($order);
+        if ($order->user_id !== Auth::id()) abort(403);
+        $order->load('items.product', 'shop');
+        $cartCount = Auth::user()->cartCount();
+        return view('buyer.checkout_success', compact('order', 'cartCount'));
     }
 }
