@@ -1,856 +1,329 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduPlayHub - One-Stop Rental Platform</title>
-    <script src="https://unpkg.com/three@r158/build/three.min.js"></script>
+    {{-- Three.js r158 sebagai module — BUKAN three.min.js karena GLTFLoader butuh module system --}}
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Exo 2', sans-serif;
-            background: linear-gradient(135deg, #050a14 0%, #0a0f1f 100%);
+            background: #050a14;
             color: #e0e0e0;
             overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* Canvas Background */
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-            z-index: 0;
-        }
-
-        /* Overlay Gradient */
-        .page-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center bottom, rgba(77, 240, 197, 0.05) 0%, rgba(5, 10, 20, 0.7) 70%);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Content Layer */
-        .content-layer {
-            position: relative;
-            z-index: 10;
-            min-height: 100vh;
-        }
-
-        /* Navbar Styles */
-        nav {
-            backdrop-filter: blur(12px);
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(77, 240, 197, 0.1);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 100;
-            animation: navFadeDown 0.8s ease-out;
-        }
-
-        @keyframes navFadeDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .nav-container {
-            max-width: 7xl;
-            margin: 0 auto;
-            padding: 1.25rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 900;
-            letter-spacing: -0.02em;
-        }
-
-        .logo span {
-            color: #4DF0C5;
-        }
-
-        .nav-links {
-            display: none;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-links.active {
-            display: flex;
-            flex-direction: column;
-            position: absolute;
-            top: 70px;
-            left: 0;
-            right: 0;
-            background: rgba(5, 10, 20, 0.95);
-            backdrop-filter: blur(12px);
-            padding: 2rem;
-            gap: 1rem;
-            border-bottom: 1px solid rgba(77, 240, 197, 0.1);
-        }
-
-        .nav-links a {
-            color: #e0e0e0;
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: #4DF0C5;
-        }
-
-        .nav-auth {
-            display: none;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .nav-auth.active {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            position: absolute;
-            top: 300px;
-            left: 0;
-            right: 0;
-            padding: 0 2rem;
-            gap: 0.5rem;
-        }
-
-        .nav-login {
-            color: #e0e0e0;
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: color 0.3s ease;
-        }
-
-        .nav-login:hover {
-            color: #4DF0C5;
-        }
-
-        .nav-register {
-            background: rgba(77, 240, 197, 0.1);
-            border: 1px solid rgba(77, 240, 197, 0.3);
-            color: #4DF0C5;
-            padding: 0.5rem 1.25rem;
-            border-radius: 0.375rem;
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .nav-register:hover {
-            background: rgba(77, 240, 197, 0.2);
-            border-color: rgba(77, 240, 197, 0.5);
-        }
-
-        .hamburger {
-            display: flex;
-            flex-direction: column;
-            gap: 0.375rem;
-            cursor: pointer;
-        }
-
-        .hamburger span {
-            width: 1.5rem;
-            height: 0.125rem;
-            background: #e0e0e0;
-            border-radius: 0.0625rem;
-            transition: all 0.3s ease;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(0.5rem, 0.5rem);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(0.375rem, -0.375rem);
-        }
-
-        @media (min-width: 768px) {
-            .nav-links {
-                display: flex !important;
-                position: static !important;
-                flex-direction: row !important;
-                background: none !important;
-                backdrop-filter: none !important;
-                padding: 0 !important;
-                border: none !important;
-                top: auto !important;
-                left: auto !important;
-            }
-
-            .nav-auth {
-                display: flex !important;
-                position: static !important;
-                flex-direction: row !important;
-                padding: 0 !important;
-                top: auto !important;
-                left: auto !important;
-                width: auto !important;
-            }
-
-            .hamburger {
-                display: none;
-            }
-
-            .nav-login, .nav-register {
-                font-size: 0.95rem;
-            }
-        }
-
-        /* Hero Section */
-        .hero-section {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6rem 2rem 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-content {
-            text-align: center;
-            max-width: 800px;
-            z-index: 20;
-            animation: heroFadeUp 1s ease-out;
-        }
-
-        @keyframes heroFadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .tagline {
-            font-family: 'Space Mono', monospace;
-            font-size: clamp(0.75rem, 2vw, 0.95rem);
-            letter-spacing: 0.2em;
-            color: rgba(77, 240, 197, 0.8);
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-            animation: taglineFadeIn 1s ease-out 0.2s both;
-        }
-
-        @keyframes taglineFadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .heading {
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #e0e0e0 0%, #ffffff 50%, #4DF0C5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: headingFadeIn 1s ease-out 0.4s both;
-        }
-
-        @keyframes headingFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .heading .cyan-word {
-            color: #4DF0C5;
-            -webkit-text-fill-color: #4DF0C5;
-        }
-
-        .subheading {
-            font-size: clamp(0.95rem, 2.5vw, 1.15rem);
-            color: rgba(224, 224, 224, 0.7);
-            line-height: 1.6;
-            margin-bottom: 2.5rem;
-            font-weight: 400;
-            animation: subheadingFadeIn 1s ease-out 0.6s both;
-        }
-
-        @keyframes subheadingFadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .cta-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            animation: buttonsFadeIn 1s ease-out 0.8s both;
-        }
-
-        @keyframes buttonsFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (min-width: 640px) {
-            .cta-buttons {
-                flex-direction: row;
-                justify-content: center;
-                gap: 1.5rem;
-            }
-        }
-
-        .btn {
-            padding: 1rem 2.5rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            font-family: 'Exo 2', sans-serif;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4DF0C5 0%, #2ac9a3 100%);
-            color: #050a14;
-            box-shadow: 0 0 30px rgba(77, 240, 197, 0.3);
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 0 50px rgba(77, 240, 197, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid rgba(77, 240, 197, 0.5);
-            color: #4DF0C5;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(77, 240, 197, 0.1);
-            border-color: #4DF0C5;
-            box-shadow: 0 0 20px rgba(77, 240, 197, 0.2);
-        }
-
-        .badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-            animation: badgesFadeIn 1s ease-out 1s both;
-        }
-
-        @keyframes badgesFadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .badge {
-            backdrop-filter: blur(8px);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(77, 240, 197, 0.3);
-            color: #4DF0C5;
-            padding: 0.5rem 1.25rem;
-            border-radius: 9999px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .badge:hover {
-            background: rgba(77, 240, 197, 0.1);
-            border-color: #4DF0C5;
-            box-shadow: 0 0 20px rgba(77, 240, 197, 0.2);
-        }
-
-        /* Features Section */
-        .features-section {
-            padding: 6rem 2rem;
-            position: relative;
-            z-index: 20;
-        }
-
-        .features-container {
-            max-width: 7xl;
-            margin: 0 auto;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        @media (min-width: 768px) {
-            .features-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .feature-card {
-            backdrop-filter: blur(12px);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(77, 240, 197, 0.15);
-            padding: 2rem;
-            border-radius: 1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            animation: cardFadeUp 0.8s ease-out forwards;
-        }
-
-        .feature-card:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .feature-card:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .feature-card:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes cardFadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(77, 240, 197, 0.5);
-            box-shadow: 0 0 30px rgba(77, 240, 197, 0.2), 0 20px 40px rgba(77, 240, 197, 0.1);
-            background: rgba(77, 240, 197, 0.05);
-        }
-
-        .feature-icon {
-            width: 4rem;
-            height: 4rem;
-            background: linear-gradient(135deg, rgba(77, 240, 197, 0.2), rgba(124, 80, 255, 0.2));
-            border: 1px solid rgba(77, 240, 197, 0.3);
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .feature-icon svg {
-            width: 2rem;
-            height: 2rem;
-            color: #4DF0C5;
-        }
-
-        .feature-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: #ffffff;
-        }
-
-        .feature-desc {
-            font-size: 0.95rem;
-            color: rgba(224, 224, 224, 0.7);
-            line-height: 1.6;
-        }
-
-        /* Footer hint */
-        .footer-hint {
-            text-align: center;
-            padding: 2rem;
-            color: rgba(224, 224, 224, 0.5);
-            font-size: 0.85rem;
-            position: relative;
-            z-index: 20;
-        }
-
-        .footer-hint a {
-            color: #4DF0C5;
-            text-decoration: none;
-        }
-
-        .footer-hint a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <!-- Canvas Background -->
-    <canvas id="three-canvas"></canvas>
-    
-    <!-- Page Overlay -->
-    <div class="page-overlay"></div>
-    
-    <!-- Content Layer -->
-    <div class="content-layer">
-        <!-- Navbar -->
-        <nav>
-            <div class="nav-container">
-                <div class="logo">
-                    Edu<span>Play</span>Hub
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>EduPlayHub — One‑Stop Rental Platform</title>
+          <script src="https://unpkg.com/three@r158/build/three.min.js"></script>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+          <style>
+            :root{--bg:#050a14;--accent:#4DF0C5;--accent2:#7C50FF;--amber:#FFB450;--muted:rgba(224,224,224,0.65)}
+            html,body{height:100%}
+            body{margin:0;background:var(--bg);color:#e6eef8;font-family:'Exo 2',system-ui,Arial;font-size:16px}
+            /* full-screen WebGL canvas */
+            #three-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+            /* UI layer */
+            .ui{position:relative;z-index:10}
+            nav.bg-glass{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:calc(100% - 48px);max-width:1200px;border-radius:14px;padding:12px 20px;backdrop-filter:blur(12px);background:rgba(255,255,255,0.03);border:1px solid rgba(77,240,197,0.06);display:flex;align-items:center;justify-content:space-between;gap:12px}
+            .logo{font-weight:900;font-size:1.125rem;letter-spacing:-0.01em}
+            .logo .play{color:var(--accent)}
+            .nav-links{display:none;gap:20px}
+            .nav-links a{color:var(--muted);text-decoration:none;font-weight:600}
+            .nav-cta{display:flex;gap:10px}
+            .btn-primary{background:linear-gradient(90deg,var(--accent),#2bd0b0);color:#041018;padding:10px 16px;border-radius:12px;font-weight:700}
+            .btn-outline{border:1px solid rgba(77,240,197,0.12);padding:9px 14px;border-radius:12px;color:var(--accent);background:transparent}
+
+            /* Hero */
+            .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:6rem 1.25rem 4rem;position:relative}
+            .hero-inner{max-width:1100px;display:grid;grid-template-columns:1fr 540px;gap:40px;align-items:center}
+            @media(max-width:980px){.hero-inner{grid-template-columns:1fr;gap:28px}.nav-links{display:none}}
+            .tagline{font-family:'Space Mono',monospace;letter-spacing:0.28em;color:var(--accent);font-size:0.85rem}
+            .title{font-weight:900;font-size:clamp(40px,8vw,86px);line-height:0.95;margin:8px 0}
+            .title .play{color:var(--accent)}
+            .subtitle{color:var(--muted);font-size:clamp(15px,2vw,18px);max-width:52rem}
+            .pills{display:flex;gap:12px;margin-top:18px}
+            .pill{padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);color:var(--accent);font-weight:600}
+
+            /* Features cards */
+            .features{padding:60px 1.25rem 120px}
+            .cards{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:18px}
+            @media(min-width:768px){.cards{grid-template-columns:repeat(3,1fr)}}
+            .card{backdrop-filter:blur(12px);background:rgba(255,255,255,0.03);border:1px solid rgba(77,240,197,0.06);padding:28px;border-radius:14px;transition:transform .26s,box-shadow .26s}
+            .card:hover{transform:translateY(-10px);box-shadow:0 20px 60px rgba(77,240,197,0.08),0 6px 20px rgba(7,11,20,0.6)}
+            .icon-wrap{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,rgba(77,240,197,0.06),rgba(124,80,255,0.06));display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+            .card h3{font-size:1.125rem;margin-bottom:8px}
+            .card p{color:var(--muted);line-height:1.6}
+
+            /* small animations */
+            .fade-up{opacity:0;transform:translateY(18px);animation:fadeUp .8s forwards}
+            .fade-up.delay-1{animation-delay:0.15s}
+            .fade-up.delay-2{animation-delay:0.3s}
+            .fade-up.delay-3{animation-delay:0.45s}
+            @keyframes fadeUp{to{opacity:1;transform:none}}
+
+            /* responsive nav menu */
+            .menu-btn{display:flex;align-items:center;gap:8px;cursor:pointer}
+            .menu-lines{width:22px;height:2px;background:#dfeff0;border-radius:2px}
+            @media(min-width:768px){.nav-links{display:flex}}
+          </style>
+        </head>
+        <body>
+
+          <!-- Three.js canvas (full-screen) -->
+          <canvas id="three-canvas"></canvas>
+          <div class="page-overlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;background:linear-gradient(180deg,rgba(7,10,18,0.0) 0%, rgba(5,8,14,0.6) 65%);"></div>
+
+          <div class="ui">
+            <nav class="bg-glass">
+              <div style="display:flex;align-items:center;gap:14px">
+                <div class="logo">Edu<span class="play">Play</span>Hub</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:18px">
+                <div class="nav-links" id="navLinks">
+                  <a href="#academic">Academic Gear</a>
+                  <a href="#fun">Fun Gear</a>
+                  <a href="#market">Second Market</a>
                 </div>
-                
-                <div class="hamburger" id="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                <div class="nav-cta">
+                  <a href="{{ route('login') }}" class="nav-login">Login</a>
+                  <a href="{{ route('register') }}" class="btn-outline">Daftar</a>
+                  <a href="{{ route('register') }}" class="btn-primary">Mulai Sewa</a>
+                </div>
+                <div class="menu-btn" id="menuBtn" style="display:none">
+                  <div class="menu-lines"></div>
+                </div>
+              </div>
+            </nav>
+
+            <main class="hero">
+              <div class="hero-inner" style="width:100%">
+                <div class="hero-copy fade-up delay-1">
+                  <div class="tagline">ONE‑STOP RENTAL PLATFORM</div>
+                  <h1 class="title"><span>Edu</span><span class="play">Play</span><span>Hub</span></h1>
+                  <p class="subtitle">Sewa alat akademis & hiburan dalam satu platform. Dari GoPro untuk riset dataset hingga PS4 untuk break time — semua tersedia dengan harga transparan.</p>
+                  <div style="margin-top:20px" class="fade-up delay-2">
+                    <a href="{{ route('register') }}" class="btn-primary" style="margin-right:10px">Mulai Sewa →</a>
+                    <a href="{{ route('catalog') }}" class="btn-outline">Lihat Katalog</a>
+                  </div>
+                  <div class="pills fade-up delay-3" style="margin-top:18px">
+                    <span class="pill">Academic Gear</span>
+                    <span class="pill">Fun Gear</span>
+                    <span class="pill">Second Market</span>
+                  </div>
                 </div>
 
-                <ul class="nav-links" id="navLinks">
-                    <li><a href="#academic">Academic Gear</a></li>
-                    <li><a href="#fun">Fun Gear</a></li>
-                    <li><a href="#market">Second Market</a></li>
-                </ul>
-
-                <div class="nav-auth" id="navAuth">
-                    <a href="{{ route('login') }}" class="nav-login">Login</a>
-                    <a href="{{ route('register') }}" class="nav-register">Daftar</a>
+                <div class="scene-panel" style="width:100%;max-width:560px;margin-left:auto">
+                  <!-- placeholder; rays rendered by shader on canvas behind UI -->
                 </div>
-            </div>
-        </nav>
+              </div>
+            </main>
 
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="hero-content">
-                <div class="tagline">ONE-STOP RENTAL PLATFORM</div>
-                <h1 class="heading">Edu<span class="cyan-word">Play</span>Hub</h1>
-                <p class="subheading">
-                    Sewa alat akademis & hiburan dalam satu platform. 
-                    Dari GoPro untuk riset dataset hingga PS4 untuk break time 
-                    — semua tersedia dengan harga transparan.
-                </p>
-                <div class="cta-buttons">
-                    <a href="{{ route('register') }}" class="btn btn-primary">Mulai Sewa →</a>
-                    <a href="{{ route('catalog') }}" class="btn btn-secondary">Lihat Katalog</a>
+            <section class="features">
+              <div class="cards">
+                <div class="card fade-up delay-1">
+                  <div class="icon-wrap">
+                    <!-- camera / GoPro -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="28" height="28"><rect x="2" y="7" width="20" height="13" rx="2"/><circle cx="12" cy="13" r="3"/></svg>
+                  </div>
+                  <h3>Academic Gear</h3>
+                  <p>Teknologi untuk riset & tugas kuliah — GoPro, kamera, alat ukur, dan peralatan lab berkualitas tinggi.</p>
                 </div>
-                <div class="badges">
-                    <span class="badge">Academic Gear</span>
-                    <span class="badge">Fun Gear</span>
-                    <span class="badge">Second Market</span>
+
+                <div class="card fade-up delay-2">
+                  <div class="icon-wrap">
+                    <!-- controller -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="28" height="28"><path d="M6 6h12v6a6 6 0 0 1-12 0z"/></svg>
+                  </div>
+                  <h3>Fun Gear</h3>
+                  <p>Hiburan premium saat butuh rehat — PS4, Nintendo Switch, VR headset, dan konsol gaming lainnya.</p>
                 </div>
-            </div>
-        </section>
 
-        <!-- Features Section -->
-        <section class="features-section" id="features">
-            <div class="features-container">
-                <div class="features-grid">
-                    <!-- Academic Gear Card -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                <circle cx="12" cy="13" r="4"></circle>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">Academic Gear</h3>
-                        <p class="feature-desc">Teknologi untuk riset & tugas kuliah. GoPro, kamera profesional, alat ukur, dan peralatan lab berkualitas tinggi.</p>
-                    </div>
-
-                    <!-- Fun Gear Card -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 3h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path>
-                                <line x1="9" y1="15" x2="15" y2="15"></line>
-                                <line x1="12" y1="12" x2="12" y2="18"></line>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">Fun Gear</h3>
-                        <p class="feature-desc">Hiburan premium saat butuh rehat. PS4, Nintendo Switch, VR headsets, dan konsol gaming terbaru lainnya.</p>
-                    </div>
-
-                    <!-- Second Market Card -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"></path>
-                                <path d="M15 4h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                                <line x1="9" y1="7" x2="15" y2="7"></line>
-                                <line x1="9" y1="11" x2="15" y2="11"></line>
-                                <line x1="9" y1="15" x2="15" y2="15"></line>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">Second Market</h3>
-                        <p class="feature-desc">Beli second berkualitas, harga transparan. Peralatan bekas terverifikasi dengan garansi kepuasan pembeli.</p>
-                    </div>
+                <div class="card fade-up delay-3">
+                  <div class="icon-wrap">
+                    <!-- tag/price -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="28" height="28"><path d="M20 10v8a2 2 0 0 1-2 2h-8l-8-8 8-8h8a2 2 0 0 1 2 2z"/></svg>
+                  </div>
+                  <h3>Second Market</h3>
+                  <p>Beli second berkualitas dengan harga transparan — peralatan terverifikasi & aman.</p>
                 </div>
-            </div>
-        </section>
+              </div>
+            </section>
 
-        <!-- Footer Hint -->
-        <div class="footer-hint">
-            <p>Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a> untuk memulai perjalanan rental Anda.</p>
-        </div>
-    </div>
+            <footer style="text-align:center;padding:28px;color:rgba(255,255,255,0.45)">Built for EduPlayHub • <a href="#" style="color:var(--accent)">Learn more</a></footer>
+          </div>
 
-    <script>
-        // Mobile Menu Toggle
-        const hamburger = document.getElementById('hamburger');
-        const navLinks = document.getElementById('navLinks');
-        const navAuth = document.getElementById('navAuth');
+          <!-- Inline Three.js + shader code -->
+          <script>
+          // Setup three.js full-screen quad with raymarching shader
+          const canvas = document.getElementById('three-canvas');
+          const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
+          renderer.setPixelRatio(window.devicePixelRatio || 1);
+          renderer.setSize(window.innerWidth, window.innerHeight);
 
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navLinks.classList.toggle('active');
-            navAuth.classList.toggle('active');
-        });
+          const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+          const scene = new THREE.Scene();
 
-        // Three.js Setup
-        const canvas = document.getElementById('three-canvas');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+          const uniforms = {
+            iTime: { value: 0 },
+            iResolution: { value: new THREE.Vector3(window.innerWidth, window.innerHeight, 1) },
+            iMouse: { value: new THREE.Vector2(0,0) }
+          };
 
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setClearColor(0x050a14, 1);
+          const vertex = `
+            varying vec2 vUv;
+            void main(){ vUv = uv; gl_Position = vec4(position,1.0); }
+          `;
 
-        camera.position.z = 30;
-
-        // GLSL Vertex Shader
-        const vertexShader = `
-            varying vec3 vPosition;
-            varying vec3 vNormal;
-
-            void main() {
-                vPosition = position;
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `;
-
-        // GLSL Fragment Shader with Raymarching
-        const fragmentShader = `
+          const fragment = `
             precision highp float;
-            varying vec3 vPosition;
-            varying vec3 vNormal;
+            varying vec2 vUv;
+            uniform vec3 iResolution;
+            uniform float iTime;
+            uniform vec2 iMouse;
 
-            uniform float uTime;
-            uniform vec3 uMousePos;
+            // ---------- Helpers ----------
+            float sdSphere(vec3 p, float r){ return length(p)-r; }
+            float sdBox(vec3 p, vec3 b){ vec3 q=abs(p)-b; return length(max(q,0.0))+min(max(q.x,max(q.y,q.z)),0.0); }
+            float sdTorus(vec3 p, vec2 t){ vec2 q = vec2(length(p.xz)-t.x,p.y); return length(q)-t.y; }
 
-            // Signed Distance Functions
-            float sdBox(vec3 p, vec3 b) {
-                vec3 q = abs(p) - b;
-                return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+            float opUnion(float d1, float d2){ return min(d1,d2); }
+            float opSmoothUnion(float d1,float d2,float k){ float h = clamp(0.5+0.5*(d2-d1)/k,0.0,1.0); return mix(d2,d1,h)-k*h*(1.0-h); }
+
+            mat3 rotY(float a){ float c=cos(a), s=sin(a); return mat3(c,0.,s, 0.,1.,0., -s,0.,c); }
+            mat3 rotX(float a){ float c=cos(a), s=sin(a); return mat3(1.,0.,0., 0.,c,-s, 0.,s,c); }
+
+            float hash(float n){ return fract(sin(n)*43758.5453123); }
+            float noise(vec3 x){ return fract(sin(dot(x,vec3(12.989,78.233,45.164)))*43758.5453); }
+
+            // Map SDF scene
+            vec4 map(vec3 p){
+              float t = iTime*0.6;
+              vec3 sphP = p - vec3(0.0, 0.0, -6.0);
+              float d = sdSphere(sphP, 2.2);
+              float tor = sdTorus(p - vec3(0.0,0.0,-6.0), vec2(4.2,0.32));
+              d = opSmoothUnion(d, tor, 0.6);
+              vec3 bp = p - vec3(sin(t*0.6)*6.0, cos(t*0.4)*2.2, -8.0);
+              float b1 = sdBox(bp, vec3(1.6,1.6,1.6));
+              vec3 bp2 = p - vec3(cos(t*0.5)*-7.5, sin(t*0.3)*3.0, -10.0);
+              float b2 = sdBox(bp2, vec3(1.2,1.2,1.2));
+              d = opSmoothUnion(d, b1, 0.3);
+              d = opSmoothUnion(d, b2, 0.4);
+              for(int i=0;i<6;i++){
+                float a = float(i)/6.0*6.28318 + t*0.8;
+                vec3 op = vec3(cos(a)*9.0, sin(a*0.6)*3.2, -7.0 + sin(a*0.8)*1.6);
+                float o = sdSphere(p - op, 0.35);
+                d = min(d,o);
+              }
+              float floorDist = (p.y + 4.0);
+              float sceneDist = min(d, floorDist);
+              return vec4(sceneDist, d, 0.0, 0.0);
             }
 
-            float sdSphere(vec3 p, float r) {
-                return length(p) - r;
+            vec3 calcNormal(vec3 p){
+              float e = 0.0008;
+              vec3 n;
+              n.x = map(p+vec3(e,0,0)).x - map(p-vec3(e,0,0)).x;
+              n.y = map(p+vec3(0,e,0)).x - map(p-vec3(0,e,0)).x;
+              n.z = map(p+vec3(0,0,e)).x - map(p-vec3(0,0,e)).x;
+              return normalize(n);
             }
 
-            float sdTorus(vec3 p, vec2 t) {
-                vec2 q = vec2(length(p.xz) - t.x, p.y);
-                return length(q) - t.y;
+            float softShadow(vec3 ro, vec3 rd, float mint, float maxt, float k){
+              float res=1.0; float t=mint;
+              for(int i=0;i<32;i++){
+                float h = map(ro+rd*t).x;
+                if(h<0.001) return 0.0;
+                res=min(res, k*h/t);
+                t += clamp(h,0.02,0.2);
+                if(t>maxt) break;
+              }
+              return clamp(res,0.0,1.0);
             }
 
-            // Noise function
-            float noise(vec3 p) {
-                return sin(p.x * 12.9898 + p.y * 78.233 + p.z * 45.164) * 43758.5453;
+            vec3 tonemap(vec3 c){ c = c / (c + vec3(1.0)); return pow(c, vec3(0.45)); }
+
+            vec4 raymarch(vec3 ro, vec3 rd){
+              float t=0.0; float d; vec3 col=vec3(0.0);
+              for(int i=0;i<120;i++){
+                vec3 pos = ro + rd * t;
+                vec4 m = map(pos);
+                d = m.x;
+                if(d<0.001) {
+                  vec3 n = calcNormal(pos);
+                  vec3 lightDir = normalize(vec3(0.8,1.0,0.6));
+                  float diff = max(dot(n,lightDir),0.0);
+                  vec3 base = vec3(0.12,0.9,0.8);
+                  if(length(pos - vec3(0.0,0.0,-6.0))<3.6) base = vec3(0.08,0.36,0.6);
+                  float mixv = smoothstep(-6.0,6.0,pos.x);
+                  base = mix(vec3(0.12,0.9,0.8), vec3(0.48,0.28,1.0), mixv);
+                  float fres = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
+                  float sh = softShadow(pos + n*0.01, lightDir, 0.01, 14.0, 32.0);
+                  col = base * diff * sh + base * 0.08 * fres;
+                  break;
+                }
+                t += clamp(d, 0.02, 0.6);
+                if(t>60.0) break;
+              }
+              vec2 uv = vUv - 0.5;
+              float neb = 0.2 * (0.5 + 0.5*sin(iTime*0.12 + uv.x*6.0));
+              vec3 bg = mix(vec3(0.03,0.02,0.06), vec3(0.08,0.02,0.12), uv.y+0.5);
+              float s = fract(sin(dot(vec2(vUv.x*1234.5,vUv.y*3456.7),vec2(12.9898,78.233))) * 43758.5453);
+              bg += vec3(s*s*s)*0.6;
+              vec3 final = tonemap(col + bg*neb);
+              return vec4(final,1.0);
             }
 
-            void main() {
-                vec3 rayDir = normalize(vPosition);
-                vec3 rayOrigin = vec3(0.0, 0.0, 0.0);
-                
-                float dist = 100.0;
-                vec3 color = vec3(0.0);
-                float alpha = 0.3;
-
-                // Academic Gear - Teal Box
-                vec3 box1Pos = vec3(sin(uTime * 0.5) * 8.0, cos(uTime * 0.3) * 6.0, -10.0);
-                float d1 = sdBox(vPosition - box1Pos, vec3(2.5, 2.5, 2.5));
-                if (d1 < dist) {
-                    dist = d1;
-                    color = vec3(0.3, 0.9, 0.8);
-                    alpha = 0.6;
-                }
-
-                // Fun Gear - Purple Box
-                vec3 box2Pos = vec3(cos(uTime * 0.4) * -10.0, sin(uTime * 0.35) * 7.0, -12.0);
-                float d2 = sdBox(vPosition - box2Pos, vec3(2.0, 2.0, 2.0));
-                if (d2 < dist) {
-                    dist = d2;
-                    color = vec3(0.6, 0.3, 1.0);
-                    alpha = 0.6;
-                }
-
-                // Central Sphere
-                vec3 spherePos = vec3(0.0, 0.0, -15.0);
-                float d3 = sdSphere(vPosition - spherePos, 3.0);
-                if (d3 < dist) {
-                    dist = d3;
-                    color = vec3(0.0, 0.7, 1.0);
-                    alpha = 0.5;
-                }
-
-                // Torus around sphere
-                float d4 = sdTorus(vPosition - spherePos, vec2(5.0, 0.8));
-                if (d4 < dist * 1.5) {
-                    color = mix(color, vec3(0.3, 1.0, 0.8), 0.5);
-                }
-
-                // Orbiting small objects
-                for (int i = 0; i < 6; i++) {
-                    float angle = float(i) * 6.28 / 6.0 + uTime * 0.2;
-                    vec3 orbitPos = vec3(
-                        cos(angle) * 12.0,
-                        sin(angle * 0.5) * 8.0,
-                        sin(angle) * -10.0
-                    );
-                    float orbitDist = sdBox(vPosition - orbitPos, vec3(1.0));
-                    if (orbitDist < dist) {
-                        dist = orbitDist;
-                        color = mix(vec3(0.3, 0.9, 0.8), vec3(0.6, 0.3, 1.0), float(i) / 6.0);
-                        alpha = 0.4;
-                    }
-                }
-
-                // Stars/noise background
-                float stars = noise(vPosition * 0.1);
-                if (stars > 0.99) {
-                    color = mix(color, vec3(1.0), 0.3);
-                }
-
-                // Glow effect based on distance
-                float glow = exp(-dist * 0.2) * 0.5;
-                color += vec3(0.2, 0.8, 1.0) * glow;
-
-                // Apply gamma correction
-                color = pow(color, vec3(0.45));
-
-                gl_FragColor = vec4(color, alpha);
+            void main(){
+              vec2 uv = (vUv * 2.0 - 1.0) * vec2(iResolution.x/iResolution.y, 1.0);
+              vec3 ro = vec3(0.0,0.0,6.0);
+              vec2 m = (iMouse.xy / iResolution.xy - 0.5) * 2.0;
+              ro.x += m.x * 3.0; ro.y -= m.y * 2.0;
+              vec3 rd = normalize(vec3(uv.x + m.x*0.35, uv.y + m.y*0.25, -1.8));
+              vec4 color = raymarch(ro, rd);
+              gl_FragColor = vec4(color.rgb,1.0);
             }
-        `;
+          `;
 
-        // Create shader material
-        const material = new THREE.ShaderMaterial({
-            vertexShader,
-            fragmentShader,
-            uniforms: {
-                uTime: { value: 0 },
-                uMousePos: { value: new THREE.Vector3(0, 0, 0) }
-            },
-            blending: THREE.AdditiveBlending,
-            transparent: true
-        });
+          const mat = new THREE.ShaderMaterial({
+            vertexShader: vertex,
+            fragmentShader: fragment,
+            uniforms: uniforms
+          });
 
-        // Create mesh
-        const geometry = new THREE.IcosahedronGeometry(50, 16);
-        const mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
+          const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat);
+          scene.add(quad);
 
-        // Lighting
-        const light = new THREE.PointLight(0x4DF0C5, 1.5, 100);
-        light.position.set(20, 20, 20);
-        scene.add(light);
+          window.addEventListener('mousemove', (e)=>{
+            uniforms.iMouse.value.x = e.clientX;
+            uniforms.iMouse.value.y = window.innerHeight - e.clientY;
+          });
 
-        const ambientLight = new THREE.AmbientLight(0x333333, 0.5);
-        scene.add(ambientLight);
-
-        // Mouse tracking for parallax
-        let mouseX = 0;
-        let mouseY = 0;
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
+          window.addEventListener('resize', ()=>{
             renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+            uniforms.iResolution.value.set(window.innerWidth, window.innerHeight, 1);
+          });
 
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Update shader uniforms
-            material.uniforms.uTime.value += 0.016;
-            material.uniforms.uMousePos.value.set(mouseX * 10, mouseY * 10, 0);
-
-            // Parallax camera
-            camera.position.x = mouseX * 5;
-            camera.position.y = mouseY * 5;
-            camera.lookAt(0, 0, 0);
-
-            // Mesh rotation
-            mesh.rotation.x += 0.0002;
-            mesh.rotation.y += 0.0003;
-
+          const clock = new THREE.Clock();
+          function render(){
+            uniforms.iTime.value = clock.getElapsedTime();
             renderer.render(scene, camera);
-        }
+            requestAnimationFrame(render);
+          }
+          render();
 
-        animate();
-    </script>
-</body>
-</html>
+          const menuBtn = document.getElementById('menuBtn');
+          const navLinksEl = document.getElementById('navLinks');
+          menuBtn?.addEventListener('click', ()=> navLinksEl.classList.toggle('active'));
+          </script>
+        </body>
+        </html>
