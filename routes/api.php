@@ -7,7 +7,7 @@ use App\Http\Controllers\PaymentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware('auth');
 
 // ===== CHECKOUT ROUTES =====
 Route::prefix('checkout')->group(function () {

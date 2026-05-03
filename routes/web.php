@@ -17,12 +17,15 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ─── BUYER (public) ─────────────────────────────────
-Route::get('/', [CatalogController::class, 'index'])->name('catalog');
-Route::get('/produk/{product}', [ProductController::class, 'show'])->name('product.show');
+// ─── LANDING ────────────────────────────────────────
+Route::view('/', 'welcome')->name('welcome');
 
 // ─── BUYER (auth required) ──────────────────────────
 Route::middleware('auth')->group(function () {
+    // Catalog
+    Route::get('/katalog', [CatalogController::class, 'index'])->name('catalog');
+    Route::get('/produk/{product}', [ProductController::class, 'show'])->name('product.show');
+
     // Cart
     Route::get('/keranjang',         [CartController::class, 'index'])->name('cart.index');
     Route::post('/keranjang/tambah', [CartController::class, 'add'])->name('cart.add');

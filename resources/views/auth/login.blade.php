@@ -4,33 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login — EduPlayHub</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700|fraunces:600" rel="stylesheet" />
 <style>
-:root{--accent:#2A5FC4;--accent-hover:#1E4FA8;--border:rgba(13,31,60,0.1);--bg:#F4F7FC;--ink:#0D1F3C;--ink-mid:rgba(13,31,60,0.6)}
+:root{--bg:#0b0d14;--panel:rgba(18,20,32,0.62);--panel-strong:rgba(18,20,32,0.9);--stroke:rgba(255,255,255,0.12);--text:#eef2ff;--muted:#a6b0d8;--accent:#4da3ff;--accent-hover:#6db6ff;--accent-warm:#ff7a3c}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{background:white;border-radius:28px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 20px 64px rgba(13,31,60,0.1);border:1px solid var(--border)}
-.logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;text-decoration:none}
-.logo-icon{width:24px;height:24px}
-.logo-text{font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-0.3px}
-h1{font-size:24px;font-weight:700;letter-spacing:-0.4px;margin-bottom:6px}
-.subtitle{font-size:13px;color:var(--ink-mid);margin-bottom:28px}
+body{background:radial-gradient(circle at 12% 15%,rgba(77,163,255,0.28),transparent 45%),radial-gradient(circle at 90% 10%,rgba(255,122,60,0.22),transparent 40%),radial-gradient(circle at 70% 70%,rgba(139,91,255,0.28),transparent 45%),var(--bg);font-family:'Space Grotesk',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;color:var(--text)}
+.card{background:var(--panel-strong);border-radius:28px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 24px 70px rgba(6,10,22,0.55);border:1px solid var(--stroke);backdrop-filter:blur(24px)}
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;text-decoration:none;color:var(--text)}
+.logo-icon{width:28px;height:28px}
+.logo-text{font-size:17px;font-weight:700;letter-spacing:-0.3px}
+h1{font-size:26px;font-weight:700;letter-spacing:-0.4px;margin-bottom:8px}
+.subtitle{font-size:13px;color:var(--muted);margin-bottom:28px}
 .form-group{margin-bottom:16px}
-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-mid);margin-bottom:6px}
-input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:#F4F7FC;font-family:inherit;font-size:14px;color:var(--ink);transition:0.18s}
-input:focus{outline:none;border-color:var(--accent);background:white;box-shadow:0 0 0 3px rgba(42,95,196,0.1)}
-.error-msg{font-size:12px;color:#dc2626;margin-top:5px}
-.btn{width:100%;padding:13px;border-radius:14px;border:none;background:var(--accent);color:white;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
-.btn:hover{background:var(--accent-hover)}
-.divider{text-align:center;margin:20px 0;font-size:12px;color:var(--ink-mid);position:relative}
-.divider::before,.divider::after{content:"";position:absolute;top:50%;width:42%;height:1px;background:var(--border)}
+label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px}
+input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--stroke);background:rgba(255,255,255,0.06);font-family:inherit;font-size:14px;color:var(--text);transition:0.18s}
+input:focus{outline:none;border-color:var(--accent);background:rgba(255,255,255,0.1);box-shadow:0 0 0 3px rgba(77,163,255,0.2)}
+.error-msg{font-size:12px;color:#f87171;margin-top:5px}
+.btn{width:100%;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent-warm));color:#0b0d14;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+.btn:hover{filter:brightness(1.05)}
+.divider{text-align:center;margin:20px 0;font-size:12px;color:var(--muted);position:relative}
+.divider::before,.divider::after{content:"";position:absolute;top:50%;width:42%;height:1px;background:var(--stroke)}
 .divider::before{left:0}.divider::after{right:0}
-.link-row{text-align:center;font-size:13px;color:var(--ink-mid);margin-top:16px}
+.link-row{text-align:center;font-size:13px;color:var(--muted);margin-top:16px}
 .link-row a{color:var(--accent);font-weight:600;text-decoration:none}
-.demo-box{background:#F4F7FC;border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:12px;color:var(--ink-mid);border:1px solid var(--border)}
-.demo-box strong{color:var(--ink);display:block;margin-bottom:4px}
-.demo-row{display:flex;gap:8px;margin-top:4px}
-.demo-btn{flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:white;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit}
+.demo-box{background:var(--panel);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:12px;color:var(--muted);border:1px solid var(--stroke)}
+.demo-box strong{color:var(--text);display:block;margin-bottom:4px}
+.demo-row{display:flex;gap:8px;margin-top:6px}
+.demo-btn{flex:1;padding:8px 10px;border-radius:10px;border:1px solid var(--stroke);background:rgba(255,255,255,0.06);font-size:11.5px;font-weight:600;cursor:pointer;color:var(--text);font-family:inherit}
 .demo-btn:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
@@ -48,8 +49,8 @@ input:focus{outline:none;border-color:var(--accent);background:white;box-shadow:
   <div class="demo-box">
     <strong>Akun Demo:</strong>
     <div class="demo-row">
-      <button class="demo-btn" onclick="fillDemo('buyer@demo.com','password')">👤 Pembeli</button>
-      <button class="demo-btn" onclick="fillDemo('seller@demo.com','password')">🏪 Penjual</button>
+      <button class="demo-btn" onclick="fillDemo('buyer@demo.com','password')">Akun Pembeli</button>
+      <button class="demo-btn" onclick="fillDemo('seller@demo.com','password')">Akun Penjual</button>
     </div>
   </div>
 
@@ -66,13 +67,14 @@ input:focus{outline:none;border-color:var(--accent);background:white;box-shadow:
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
       <input type="checkbox" name="remember" id="remember" style="width:auto;margin:0">
-      <label for="remember" style="font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--ink-mid)">Ingat saya</label>
+      <label for="remember" style="font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--muted)">Ingat saya</label>
     </div>
     <button type="submit" class="btn">Masuk</button>
   </form>
 
   <div class="divider">atau</div>
   <div class="link-row">Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a></div>
+  <div class="link-row" style="margin-top:10px"><a href="{{ route('welcome') }}">Kembali ke landing</a></div>
 </div>
 
 <script>

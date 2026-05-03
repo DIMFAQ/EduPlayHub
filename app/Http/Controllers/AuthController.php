@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Shop;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        if (Auth::check()) return redirect()->intended('/');
+        if (Auth::check()) return redirect()->intended(route('catalog'));
         return view('auth.login');
     }
 
@@ -25,6 +25,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
+            /** @var User $user */
             $user = Auth::user();
             if ($user->role === 'seller') {
                 return redirect()->route('seller.dashboard');

@@ -4,34 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daftar — EduPlayHub</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700|fraunces:600" rel="stylesheet" />
 <style>
-:root{--accent:#2A5FC4;--accent-hover:#1E4FA8;--border:rgba(13,31,60,0.1);--bg:#F4F7FC;--ink:#0D1F3C;--ink-mid:rgba(13,31,60,0.6)}
+:root{--bg:#0b0d14;--panel:rgba(18,20,32,0.62);--panel-strong:rgba(18,20,32,0.9);--stroke:rgba(255,255,255,0.12);--text:#eef2ff;--muted:#a6b0d8;--accent:#4da3ff;--accent-hover:#6db6ff;--accent-warm:#ff7a3c}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{background:white;border-radius:28px;padding:40px;width:100%;max-width:460px;box-shadow:0 20px 64px rgba(13,31,60,0.1);border:1px solid var(--border)}
-.logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;text-decoration:none}
-.logo-text{font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-0.3px}
-h1{font-size:22px;font-weight:700;margin-bottom:4px}
-.subtitle{font-size:13px;color:var(--ink-mid);margin-bottom:24px}
+body{background:radial-gradient(circle at 12% 15%,rgba(77,163,255,0.28),transparent 45%),radial-gradient(circle at 90% 10%,rgba(255,122,60,0.22),transparent 40%),radial-gradient(circle at 70% 70%,rgba(139,91,255,0.28),transparent 45%),var(--bg);font-family:'Space Grotesk',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;color:var(--text)}
+.card{background:var(--panel-strong);border-radius:28px;padding:40px;width:100%;max-width:480px;box-shadow:0 24px 70px rgba(6,10,22,0.55);border:1px solid var(--stroke);backdrop-filter:blur(24px)}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;text-decoration:none;color:var(--text)}
+.logo-text{font-size:17px;font-weight:700;letter-spacing:-0.3px}
+h1{font-size:24px;font-weight:700;margin-bottom:6px}
+.subtitle{font-size:13px;color:var(--muted);margin-bottom:24px}
 .form-group{margin-bottom:14px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-mid);margin-bottom:6px}
-input,select{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border);background:#F4F7FC;font-family:inherit;font-size:14px;color:var(--ink);transition:0.18s}
-input:focus,select:focus{outline:none;border-color:var(--accent);background:white;box-shadow:0 0 0 3px rgba(42,95,196,0.1)}
-.error-msg{font-size:12px;color:#dc2626;margin-top:4px}
+label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px}
+input,select{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--stroke);background:rgba(255,255,255,0.06);font-family:inherit;font-size:14px;color:var(--text);transition:0.18s}
+input:focus,select:focus{outline:none;border-color:var(--accent);background:rgba(255,255,255,0.1);box-shadow:0 0 0 3px rgba(77,163,255,0.2)}
+.error-msg{font-size:12px;color:#f87171;margin-top:4px}
 .role-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.role-card{border:1.5px solid var(--border);border-radius:14px;padding:14px 12px;cursor:pointer;transition:0.18s;text-align:center}
+.role-card{border:1.5px solid var(--stroke);border-radius:14px;padding:14px 12px;cursor:pointer;transition:0.18s;text-align:center;background:rgba(255,255,255,0.03)}
 .role-card:hover{border-color:var(--accent)}
-.role-card.active{border-color:var(--accent);background:rgba(42,95,196,0.06)}
-.role-icon{font-size:24px;margin-bottom:6px}
+.role-card.active{border-color:var(--accent);background:rgba(77,163,255,0.1)}
+.role-icon{width:32px;height:32px;border-radius:12px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0b0d14;background:linear-gradient(145deg,rgba(255,255,255,0.9),rgba(196,210,255,0.8));box-shadow:0 8px 16px rgba(0,0,0,0.25)}
 .role-name{font-size:13px;font-weight:700}
-.role-desc{font-size:11px;color:var(--ink-mid)}
+.role-desc{font-size:11px;color:var(--muted)}
 .shop-field{display:none}
 .shop-field.show{display:block}
-.btn{width:100%;padding:13px;border-radius:14px;border:none;background:var(--accent);color:white;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px}
-.btn:hover{background:var(--accent-hover)}
-.link-row{text-align:center;font-size:13px;color:var(--ink-mid);margin-top:16px}
+.btn{width:100%;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent-warm));color:#0b0d14;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+.btn:hover{filter:brightness(1.05)}
+.link-row{text-align:center;font-size:13px;color:var(--muted);margin-top:16px}
 .link-row a{color:var(--accent);font-weight:600;text-decoration:none}
 </style>
 </head>
@@ -53,12 +54,12 @@ input:focus,select:focus{outline:none;border-color:var(--accent);background:whit
       <label>Saya ingin...</label>
       <div class="role-options">
         <div class="role-card active" id="roleBuyer" onclick="setRole('buyer')">
-          <div class="role-icon">🛒</div>
+          <div class="role-icon">BY</div>
           <div class="role-name">Pembeli</div>
           <div class="role-desc">Sewa & beli produk</div>
         </div>
         <div class="role-card" id="roleSeller" onclick="setRole('seller')">
-          <div class="role-icon">🏪</div>
+          <div class="role-icon">SL</div>
           <div class="role-name">Penjual</div>
           <div class="role-desc">Jual & sewakan produk</div>
         </div>
@@ -97,6 +98,7 @@ input:focus,select:focus{outline:none;border-color:var(--accent);background:whit
   </form>
 
   <div class="link-row">Sudah punya akun? <a href="{{ route('login') }}">Masuk</a></div>
+  <div class="link-row" style="margin-top:10px"><a href="{{ route('welcome') }}">Kembali ke landing</a></div>
 </div>
 
 <script>
