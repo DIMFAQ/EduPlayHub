@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Shop;
+use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Order;
@@ -127,7 +129,9 @@ class SellerController extends Controller
 
     public function updateProfile(Request $request)
     {
+        /** @var User $user */
         $user = Auth::user();
+        /** @var Shop $shop */
         $shop = $this->shop();
 
         $request->validate([
@@ -140,6 +144,9 @@ class SellerController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
             $path = $request->file('avatar')->store('avatars', 'public');
             $user->update(['avatar' => $path]);
         }

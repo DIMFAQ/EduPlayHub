@@ -1,329 +1,839 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlayHub - One-Stop Rental Platform</title>
-    {{-- Three.js r158 sebagai module — BUKAN three.min.js karena GLTFLoader butuh module system --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduPlay — Sewa & Beli Alat Kuliah + Hiburan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --indigo: #4F46E5;
+    --indigo-light: #818CF8;
+    --indigo-dark: #3730A3;
+    --orange: #F97316;
+    --orange-light: #FB923C;
+    --sky: #0EA5E9;
+    --sky-light: #38BDF8;
+    --bg: #05050F;
+    --bg2: #0D0D1F;
+    --bg3: #12122A;
+    --text: #F0F0FF;
+    --muted: #8B8BAD;
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.08);
+  }
 
-        body {
-            font-family: 'Exo 2', sans-serif;
-            background: #050a14;
-            color: #e0e0e0;
-            overflow-x: hidden;
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width,initial-scale=1">
-          <title>EduPlayHub — One‑Stop Rental Platform</title>
-          <script src="https://unpkg.com/three@r158/build/three.min.js"></script>
-          <script src="https://cdn.tailwindcss.com"></script>
-          <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  html { scroll-behavior: smooth; }
 
-          <style>
-            :root{--bg:#050a14;--accent:#4DF0C5;--accent2:#7C50FF;--amber:#FFB450;--muted:rgba(224,224,224,0.65)}
-            html,body{height:100%}
-            body{margin:0;background:var(--bg);color:#e6eef8;font-family:'Exo 2',system-ui,Arial;font-size:16px}
-            /* full-screen WebGL canvas */
-            #three-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
-            /* UI layer */
-            .ui{position:relative;z-index:10}
-            nav.bg-glass{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:calc(100% - 48px);max-width:1200px;border-radius:14px;padding:12px 20px;backdrop-filter:blur(12px);background:rgba(255,255,255,0.03);border:1px solid rgba(77,240,197,0.06);display:flex;align-items:center;justify-content:space-between;gap:12px}
-            .logo{font-weight:900;font-size:1.125rem;letter-spacing:-0.01em}
-            .logo .play{color:var(--accent)}
-            .nav-links{display:none;gap:20px}
-            .nav-links a{color:var(--muted);text-decoration:none;font-weight:600}
-            .nav-cta{display:flex;gap:10px}
-            .btn-primary{background:linear-gradient(90deg,var(--accent),#2bd0b0);color:#041018;padding:10px 16px;border-radius:12px;font-weight:700}
-            .btn-outline{border:1px solid rgba(77,240,197,0.12);padding:9px 14px;border-radius:12px;color:var(--accent);background:transparent}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none;
+  }
 
-            /* Hero */
-            .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:6rem 1.25rem 4rem;position:relative}
-            .hero-inner{max-width:1100px;display:grid;grid-template-columns:1fr 540px;gap:40px;align-items:center}
-            @media(max-width:980px){.hero-inner{grid-template-columns:1fr;gap:28px}.nav-links{display:none}}
-            .tagline{font-family:'Space Mono',monospace;letter-spacing:0.28em;color:var(--accent);font-size:0.85rem}
-            .title{font-weight:900;font-size:clamp(40px,8vw,86px);line-height:0.95;margin:8px 0}
-            .title .play{color:var(--accent)}
-            .subtitle{color:var(--muted);font-size:clamp(15px,2vw,18px);max-width:52rem}
-            .pills{display:flex;gap:12px;margin-top:18px}
-            .pill{padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);color:var(--accent);font-weight:600}
+  /* ── CUSTOM CURSOR ── */
+  #cursor {
+    position: fixed; top: 0; left: 0; z-index: 9999;
+    width: 12px; height: 12px;
+    background: var(--indigo-light);
+    border-radius: 50%;
+    pointer-events: none;
+    transition: transform 0.15s ease, background 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-ring {
+    position: fixed; top: 0; left: 0; z-index: 9998;
+    width: 36px; height: 36px;
+    border: 1.5px solid rgba(129,140,248,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(.17,.67,.47,1.3), width 0.3s, height 0.3s, border-color 0.3s;
+    transform: translate(-50%, -50%);
+  }
+  body:has(a:hover) #cursor-ring,
+  body:has(button:hover) #cursor-ring { width: 52px; height: 52px; border-color: var(--orange); }
 
-            /* Features cards */
-            .features{padding:60px 1.25rem 120px}
-            .cards{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:18px}
-            @media(min-width:768px){.cards{grid-template-columns:repeat(3,1fr)}}
-            .card{backdrop-filter:blur(12px);background:rgba(255,255,255,0.03);border:1px solid rgba(77,240,197,0.06);padding:28px;border-radius:14px;transition:transform .26s,box-shadow .26s}
-            .card:hover{transform:translateY(-10px);box-shadow:0 20px 60px rgba(77,240,197,0.08),0 6px 20px rgba(7,11,20,0.6)}
-            .icon-wrap{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,rgba(77,240,197,0.06),rgba(124,80,255,0.06));display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-            .card h3{font-size:1.125rem;margin-bottom:8px}
-            .card p{color:var(--muted);line-height:1.6}
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.5;
+  }
 
-            /* small animations */
-            .fade-up{opacity:0;transform:translateY(18px);animation:fadeUp .8s forwards}
-            .fade-up.delay-1{animation-delay:0.15s}
-            .fade-up.delay-2{animation-delay:0.3s}
-            .fade-up.delay-3{animation-delay:0.45s}
-            @keyframes fadeUp{to{opacity:1;transform:none}}
+  /* ── BACKGROUND ORBS ── */
+  .orb {
+    position: fixed; border-radius: 50%; filter: blur(80px);
+    pointer-events: none; z-index: 0; animation: orb-drift 20s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(79,70,229,0.25) 0%, transparent 70%); top: -200px; left: -200px; animation-delay: 0s; }
+  .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%); top: 200px; right: -150px; animation-delay: -7s; }
+  .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%); bottom: 100px; left: 200px; animation-delay: -14s; }
 
-            /* responsive nav menu */
-            .menu-btn{display:flex;align-items:center;gap:8px;cursor:pointer}
-            .menu-lines{width:22px;height:2px;background:#dfeff0;border-radius:2px}
-            @media(min-width:768px){.nav-links{display:flex}}
-          </style>
-        </head>
-        <body>
+  @keyframes orb-drift {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 30px) scale(1.08); }
+  }
 
-          <!-- Three.js canvas (full-screen) -->
-          <canvas id="three-canvas"></canvas>
-          <div class="page-overlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;background:linear-gradient(180deg,rgba(7,10,18,0.0) 0%, rgba(5,8,14,0.6) 65%);"></div>
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1.2rem 2.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(5,5,15,0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--card-border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--indigo-light), var(--orange-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { -webkit-text-fill-color: var(--orange-light); }
+  .nav-links { display: flex; align-items: center; gap: 2rem; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.9rem;
+    transition: color 0.2s; cursor: none;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--indigo);
+    color: white !important;
+    padding: 0.5rem 1.2rem;
+    border-radius: 100px;
+    font-weight: 500;
+    transition: background 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--indigo-dark); transform: scale(1.04) !important; }
 
-          <div class="ui">
-            <nav class="bg-glass">
-              <div style="display:flex;align-items:center;gap:14px">
-                <div class="logo">Edu<span class="play">Play</span>Hub</div>
-              </div>
-              <div style="display:flex;align-items:center;gap:18px">
-                <div class="nav-links" id="navLinks">
-                  <a href="#academic">Academic Gear</a>
-                  <a href="#fun">Fun Gear</a>
-                  <a href="#market">Second Market</a>
-                </div>
-                <div class="nav-cta">
-                  <a href="{{ route('login') }}" class="nav-login">Login</a>
-                  <a href="{{ route('register') }}" class="btn-outline">Daftar</a>
-                  <a href="{{ route('register') }}" class="btn-primary">Mulai Sewa</a>
-                </div>
-                <div class="menu-btn" id="menuBtn" style="display:none">
-                  <div class="menu-lines"></div>
-                </div>
-              </div>
-            </nav>
+  /* ── HERO ── */
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8rem 2rem 4rem;
+    text-align: center;
+    overflow: hidden;
+  }
 
-            <main class="hero">
-              <div class="hero-inner" style="width:100%">
-                <div class="hero-copy fade-up delay-1">
-                  <div class="tagline">ONE‑STOP RENTAL PLATFORM</div>
-                  <h1 class="title"><span>Edu</span><span class="play">Play</span><span>Hub</span></h1>
-                  <p class="subtitle">Sewa alat akademis & hiburan dalam satu platform. Dari GoPro untuk riset dataset hingga PS4 untuk break time — semua tersedia dengan harga transparan.</p>
-                  <div style="margin-top:20px" class="fade-up delay-2">
-                    <a href="{{ route('register') }}" class="btn-primary" style="margin-right:10px">Mulai Sewa →</a>
-                    <a href="{{ route('catalog') }}" class="btn-outline">Lihat Katalog</a>
-                  </div>
-                  <div class="pills fade-up delay-3" style="margin-top:18px">
-                    <span class="pill">Academic Gear</span>
-                    <span class="pill">Fun Gear</span>
-                    <span class="pill">Second Market</span>
-                  </div>
-                </div>
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(79,70,229,0.15);
+    border: 1px solid rgba(79,70,229,0.35);
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    font-size: 0.8rem; color: var(--indigo-light);
+    margin-bottom: 1.5rem;
+    animation: fade-up 0.6s ease both;
+  }
+  .hero-badge::before { content: ''; width: 6px; height: 6px; background: var(--indigo-light); border-radius: 50%; animation: pulse 2s infinite; }
 
-                <div class="scene-panel" style="width:100%;max-width:560px;margin-left:auto">
-                  <!-- placeholder; rays rendered by shader on canvas behind UI -->
-                </div>
-              </div>
-            </main>
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
 
-            <section class="features">
-              <div class="cards">
-                <div class="card fade-up delay-1">
-                  <div class="icon-wrap">
-                    <!-- camera / GoPro -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="28" height="28"><rect x="2" y="7" width="20" height="13" rx="2"/><circle cx="12" cy="13" r="3"/></svg>
-                  </div>
-                  <h3>Academic Gear</h3>
-                  <p>Teknologi untuk riset & tugas kuliah — GoPro, kamera, alat ukur, dan peralatan lab berkualitas tinggi.</p>
-                </div>
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.5rem;
+    animation: fade-up 0.7s ease 0.1s both;
+  }
+  .hero-title .line1 { display: block; color: var(--text); }
+  .hero-title .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--indigo-light) 0%, var(--sky-light) 40%, var(--orange-light) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: fade-up 0.7s ease 0.1s both, grad-shift 6s ease infinite alternate;
+  }
+  @keyframes grad-shift { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
 
-                <div class="card fade-up delay-2">
-                  <div class="icon-wrap">
-                    <!-- controller -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="28" height="28"><path d="M6 6h12v6a6 6 0 0 1-12 0z"/></svg>
-                  </div>
-                  <h3>Fun Gear</h3>
-                  <p>Hiburan premium saat butuh rehat — PS4, Nintendo Switch, VR headset, dan konsol gaming lainnya.</p>
-                </div>
+  .hero-sub {
+    max-width: 540px;
+    font-size: 1.1rem; line-height: 1.7;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    animation: fade-up 0.7s ease 0.2s both;
+  }
 
-                <div class="card fade-up delay-3">
-                  <div class="icon-wrap">
-                    <!-- tag/price -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="28" height="28"><path d="M20 10v8a2 2 0 0 1-2 2h-8l-8-8 8-8h8a2 2 0 0 1 2 2z"/></svg>
-                  </div>
-                  <h3>Second Market</h3>
-                  <p>Beli second berkualitas dengan harga transparan — peralatan terverifikasi & aman.</p>
-                </div>
-              </div>
-            </section>
+  .hero-actions {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 4rem;
+    animation: fade-up 0.7s ease 0.3s both;
+  }
+  .btn-primary {
+    padding: 0.8rem 2rem;
+    background: linear-gradient(135deg, var(--indigo), var(--indigo-dark));
+    color: white; border: none; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
+    cursor: none; text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(79,70,229,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(79,70,229,0.5); }
+  .btn-outline {
+    padding: 0.8rem 2rem;
+    background: transparent;
+    color: var(--text); border: 1px solid var(--card-border); border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
+    cursor: none; text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); }
 
-            <footer style="text-align:center;padding:28px;color:rgba(255,255,255,0.45)">Built for EduPlayHub • <a href="#" style="color:var(--accent)">Learn more</a></footer>
+  @keyframes fade-up { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── STATS STRIP ── */
+  .stats-strip {
+    display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 5rem;
+    animation: fade-up 0.7s ease 0.4s both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── 3D PRODUCT CARDS MARQUEE ── */
+  .marquee-section {
+    position: relative; z-index: 1;
+    overflow: hidden;
+    padding: 0 0 2rem;
+    margin-bottom: 6rem;
+  }
+  .marquee-label {
+    text-align: center;
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 2rem;
+  }
+  .marquee-track {
+    display: flex; gap: 1.5rem;
+    width: max-content;
+    animation: marquee-scroll 40s linear infinite;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+  .marquee-row { display: flex; gap: 1.5rem; }
+  .marquee-row2 { animation: marquee-scroll-rev 35s linear infinite; margin-top: 1.5rem; }
+  .marquee-row2:hover { animation-play-state: paused; }
+
+  @keyframes marquee-scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes marquee-scroll-rev { 0%{transform:translateX(-50%)} 100%{transform:translateX(0)} }
+
+  .prod-card {
+    position: relative;
+    width: 220px; min-width: 220px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    cursor: none;
+    transition: transform 0.4s cubic-bezier(.23,1,.32,1), border-color 0.3s;
+    transform-style: preserve-3d;
+  }
+  .prod-card:hover { border-color: rgba(129,140,248,0.35); transform: scale(1.04) translateY(-4px); }
+  .prod-card img {
+    width: 100%; height: 140px;
+    object-fit: cover; display: block;
+    filter: brightness(0.85) saturate(1.1);
+    transition: filter 0.3s, transform 0.5s;
+  }
+  .prod-card:hover img { filter: brightness(1) saturate(1.2); transform: scale(1.06); }
+  .prod-card-body { padding: 1rem; }
+  .prod-card-tag {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 2px 8px; border-radius: 100px;
+    display: inline-block; margin-bottom: 0.5rem;
+  }
+  .tag-edu { background: rgba(14,165,233,0.15); color: var(--sky-light); }
+  .tag-play { background: rgba(249,115,22,0.15); color: var(--orange-light); }
+  .prod-card-name {
+    font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700;
+    color: var(--text); margin-bottom: 0.5rem; line-height: 1.3;
+  }
+  .prod-card-price {
+    font-size: 0.8rem; color: var(--muted);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .price-rent { color: var(--indigo-light); font-weight: 500; }
+  .prod-card-shine {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+  }
+
+  /* ── SECTION: CATEGORIES ── */
+  .section {
+    position: relative; z-index: 1;
+    max-width: 1200px; margin: 0 auto;
+    padding: 0 2rem 7rem;
+  }
+  .section-label {
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--indigo-light); margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1.1; margin-bottom: 1rem;
+  }
+  .section-sub { color: var(--muted); font-size: 1rem; line-height: 1.7; max-width: 500px; margin-bottom: 3rem; }
+
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+  .cat-card {
+    position: relative; overflow: hidden;
+    border-radius: 20px; border: 1px solid var(--card-border);
+    padding: 2.5rem;
+    background: var(--card-bg);
+    cursor: none;
+    transition: border-color 0.3s, transform 0.3s;
+    transform-style: preserve-3d;
+  }
+  .cat-card:hover { border-color: rgba(129,140,248,0.4); transform: translateY(-4px); }
+  .cat-card-edu { grid-row: span 1; }
+  .cat-card-play { grid-row: span 1; }
+
+  .cat-icon {
+    font-size: 3rem; margin-bottom: 1.5rem; display: block;
+    filter: drop-shadow(0 0 20px currentColor);
+  }
+  .cat-card-edu .cat-icon { color: var(--sky); }
+  .cat-card-play .cat-icon { color: var(--orange); }
+
+  .cat-title {
+    font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .cat-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem; }
+  .cat-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+  .cat-tag {
+    font-size: 0.75rem; padding: 0.25rem 0.75rem;
+    border-radius: 100px; border: 1px solid var(--card-border);
+    color: var(--muted);
+  }
+  .cat-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.9rem; font-weight: 500; text-decoration: none;
+    cursor: none;
+    transition: gap 0.2s;
+  }
+  .cat-card-edu .cat-link { color: var(--sky-light); }
+  .cat-card-play .cat-link { color: var(--orange-light); }
+  .cat-link:hover { gap: 0.75rem; }
+
+  .cat-card-bg {
+    position: absolute; right: -40px; bottom: -40px;
+    width: 220px; height: 220px; border-radius: 50%;
+    filter: blur(60px); opacity: 0.15; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .cat-card:hover .cat-card-bg { opacity: 0.25; }
+  .cat-card-edu .cat-card-bg { background: var(--sky); }
+  .cat-card-play .cat-card-bg { background: var(--orange); }
+
+  /* ── HOW IT WORKS ── */
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .step-card {
+    border-radius: 16px; border: 1px solid var(--card-border);
+    padding: 2rem; background: var(--card-bg);
+    position: relative; overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .step-card:hover { border-color: rgba(129,140,248,0.3); transform: translateY(-4px); }
+  .step-num {
+    font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800;
+    color: rgba(255,255,255,0.04); position: absolute; top: 1rem; right: 1.5rem;
+    line-height: 1;
+  }
+  .step-icon {
+    font-size: 1.8rem; margin-bottom: 1rem; display: block;
+  }
+  .step-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .step-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+
+  /* ── FEATURED PRODUCTS ── */
+  .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .feat-card {
+    border-radius: 16px; border: 1px solid var(--card-border);
+    background: var(--card-bg); overflow: hidden;
+    cursor: none;
+    transition: transform 0.3s cubic-bezier(.23,1,.32,1), border-color 0.3s;
+  }
+  .feat-card:hover { transform: translateY(-6px) scale(1.02); border-color: rgba(129,140,248,0.35); }
+  .feat-card-img {
+    width: 100%; height: 180px;
+    object-fit: cover; display: block;
+    filter: brightness(0.8) saturate(1.1);
+    transition: filter 0.3s, transform 0.5s;
+  }
+  .feat-card:hover .feat-card-img { filter: brightness(0.95) saturate(1.3); transform: scale(1.05); }
+  .feat-card-img-wrap { overflow: hidden; }
+  .feat-card-body { padding: 1.25rem; }
+  .feat-badge {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 3px 10px; border-radius: 100px; display: inline-block; margin-bottom: 0.75rem;
+  }
+  .badge-rent { background: rgba(79,70,229,0.2); color: var(--indigo-light); }
+  .badge-buy { background: rgba(34,197,94,0.15); color: #86EFAC; }
+  .badge-both { background: rgba(249,115,22,0.15); color: var(--orange-light); }
+  .feat-name { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .feat-price-row { display: flex; justify-content: space-between; align-items: center; }
+  .feat-rent { font-size: 0.85rem; color: var(--indigo-light); font-weight: 500; }
+  .feat-buy { font-size: 0.75rem; color: var(--muted); }
+  .feat-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(79,70,229,0.2); border: 1px solid rgba(79,70,229,0.3);
+    color: var(--indigo-light); font-size: 1.2rem; line-height: 32px; text-align: center;
+    transition: background 0.2s;
+  }
+  .feat-card:hover .feat-btn { background: var(--indigo); color: white; }
+
+  /* ── TESTIMONIAL ── */
+  .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .testi-card {
+    border-radius: 16px; border: 1px solid var(--card-border);
+    padding: 1.5rem; background: var(--card-bg);
+    transition: border-color 0.3s;
+  }
+  .testi-card:hover { border-color: rgba(129,140,248,0.3); }
+  .testi-stars { color: #FCD34D; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .testi-text { font-size: 0.9rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.25rem; font-style: italic; }
+  .testi-author { display: flex; align-items: center; gap: 0.75rem; }
+  .testi-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--indigo), var(--sky));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; color: white;
+    font-family: 'Syne', sans-serif;
+  }
+  .testi-name { font-size: 0.85rem; font-weight: 500; }
+  .testi-role { font-size: 0.75rem; color: var(--muted); }
+
+  /* ── CTA SECTION ── */
+  .cta-section {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 5rem 2rem 8rem;
+    overflow: hidden;
+  }
+  .cta-glow {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 600px; height: 300px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(79,70,229,0.25) 0%, transparent 70%);
+    filter: blur(40px); pointer-events: none;
+  }
+  .cta-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem;
+  }
+  .cta-sub { color: var(--muted); margin-bottom: 2.5rem; font-size: 1rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--card-border);
+    padding: 2rem 2.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--indigo-light), var(--orange-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  footer p { font-size: 0.8rem; color: var(--muted); }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    .cat-grid, .steps-grid, .feat-grid, .testi-grid { grid-template-columns: 1fr; }
+    .stats-strip { gap: 1.5rem; }
+    footer { flex-direction: column; text-align: center; }
+  }
+
+  /* ── 3D TILT (JS) ── */
+  .tilt-card { transition: transform 0.1s ease; }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Edu<span>Play</span></div>
+  <div class="nav-links">
+    <a href="#eduzone">EduZone</a>
+    <a href="#playzone">PlayZone</a>
+    <a href="#cara-kerja">Cara Kerja</a>
+    <a href="#produk">Produk</a>
+    @auth
+      <a href="{{ route('catalog') }}" class="nav-cta">Jelajahi Katalog</a>
+    @else
+      <a href="{{ route('login') }}">Masuk</a>
+      <a href="{{ route('register') }}" class="nav-cta">Daftar Sekarang</a>
+    @endauth
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🚀 Platform Sewa & Beli Alat Terlengkap di Lampung</div>
+  <h1 class="hero-title">
+    <span class="line1">Belajar Lebih Seru,</span>
+    <span class="line2">Main Lebih Hemat.</span>
+  </h1>
+  <p class="hero-sub">
+    Sewa kamera, ESP32, proyektor, dan alat riset lainnya. Atau nikmati sesi gaming PS5 dengan harga bersahabat. Semua ada di EduPlay.
+  </p>
+  <div class="hero-actions">
+    <a href="#produk" class="btn-primary">Jelajahi Produk →</a>
+    <a href="#cara-kerja" class="btn-outline">Cara Kerja</a>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat"><div class="stat-num" data-target="250">0</div><div class="stat-label">Produk Tersedia</div></div>
+    <div class="stat"><div class="stat-num" data-target="1200">0</div><div class="stat-label">Pengguna Aktif</div></div>
+    <div class="stat"><div class="stat-num" data-target="98">0</div><div class="stat-label">% Kepuasan</div></div>
+    <div class="stat"><div class="stat-num" data-target="15">0</div><div class="stat-label">Kategori Produk</div></div>
+  </div>
+</section>
+
+<!-- MARQUEE ROW 1 -->
+<section class="marquee-section">
+  <p class="marquee-label">Produk Unggulan</p>
+  <div style="position:relative">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:120px;background:linear-gradient(to right,var(--bg),transparent);z-index:2;pointer-events:none"></div>
+    <div style="position:absolute;right:0;top:0;bottom:0;width:120px;background:linear-gradient(to left,var(--bg),transparent);z-index:2;pointer-events:none"></div>
+    <div class="marquee-row" id="row1"></div>
+    <div class="marquee-row marquee-row2" id="row2" style="margin-top:1.5rem"></div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section" id="eduzone">
+  <div class="reveal">
+    <p class="section-label">Kategori</p>
+    <h2 class="section-title">Dua Dunia,<br>Satu Platform</h2>
+    <p class="section-sub">Dari peralatan riset serius hingga hiburan santai — EduPlay punya semuanya untuk kamu.</p>
+  </div>
+  <div class="cat-grid reveal">
+    <div class="cat-card cat-card-edu tilt-card">
+      <div class="cat-card-bg"></div>
+      <span class="cat-icon">📚</span>
+      <h3 class="cat-title">EduZone</h3>
+      <p class="cat-desc">Alat kuliah dan penelitian berkualitas. Sewa harian atau beli langsung — fleksibel sesuai kebutuhanmu.</p>
+      <div class="cat-tags">
+        <span class="cat-tag">Kamera DSLR</span>
+        <span class="cat-tag">ESP32 / Arduino</span>
+        <span class="cat-tag">Proyektor</span>
+        <span class="cat-tag">Drone</span>
+        <span class="cat-tag">Mikroskop</span>
+        <span class="cat-tag">Laptop</span>
+      </div>
+      <a href="#" class="cat-link">Lihat Semua EduZone <span>→</span></a>
+    </div>
+    <div class="cat-card cat-card-play tilt-card" id="playzone">
+      <div class="cat-card-bg"></div>
+      <span class="cat-icon">🎮</span>
+      <h3 class="cat-title">PlayZone</h3>
+      <p class="cat-desc">Sewa konsol gaming premium per jam atau per hari. Nikmati gaming tanpa harus beli konsol mahal.</p>
+      <div class="cat-tags">
+        <span class="cat-tag">PlayStation 5</span>
+        <span class="cat-tag">PlayStation 4</span>
+        <span class="cat-tag">Nintendo Switch</span>
+        <span class="cat-tag">VR Headset</span>
+        <span class="cat-tag">Controller Ekstra</span>
+      </div>
+      <a href="#" class="cat-link" style="color:var(--orange-light)">Lihat Semua PlayZone <span>→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="cara-kerja">
+  <div class="reveal">
+    <p class="section-label">Cara Kerja</p>
+    <h2 class="section-title">Mudah dalam<br>3 Langkah</h2>
+    <p class="section-sub">Proses sewa dan beli yang simpel — dari browse sampai barang di tanganmu.</p>
+  </div>
+  <div class="steps-grid reveal">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <span class="step-icon">🔍</span>
+      <h4 class="step-title">Pilih Produk</h4>
+      <p class="step-desc">Browse ratusan produk EduZone dan PlayZone. Filter berdasarkan kategori, harga, dan ketersediaan stok real-time.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <span class="step-icon">📅</span>
+      <h4 class="step-title">Tentukan Durasi</h4>
+      <p class="step-desc">Pilih tanggal mulai dan selesai sewa. Harga otomatis terhitung. Atau langsung beli jika ingin memiliki.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <span class="step-icon">⚡</span>
+      <h4 class="step-title">Bayar & Nikmati</h4>
+      <p class="step-desc">Bayar aman via Midtrans — GoPay, QRIS, Virtual Account, atau kartu kredit. Barang siap digunakan!</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section" id="produk">
+  <div class="reveal">
+    <p class="section-label">Produk Pilihan</p>
+    <h2 class="section-title">Yang Paling<br>Banyak Dicari</h2>
+    <p class="section-sub">Produk terpopuler minggu ini, dipilih berdasarkan rating dan jumlah sewa.</p>
+  </div>
+  <div class="feat-grid reveal" id="feat-grid"></div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="reveal">
+    <p class="section-label">Testimoni</p>
+    <h2 class="section-title">Kata Mereka<br>Tentang EduPlay</h2>
+  </div>
+  <div class="testi-grid reveal">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"Sewa kamera buat sidang skripsi gampang banget. Harga terjangkau, barangnya mulus. Pasti balik lagi!"</p>
+      <div class="testi-author">
+        <div class="testi-avatar">AR</div>
+        <div><div class="testi-name">Ahmad Ridho</div><div class="testi-role">Mahasiswa Teknik, Unila</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"ESP32 dan sensor-sensornya lengkap banget. Bisa sewa buat project IoT tanpa keluar modal besar. Mantap!"</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,var(--sky),var(--indigo))">DS</div>
+        <div><div class="testi-name">Desi Susanti</div><div class="testi-role">Peneliti, Institut Teknologi</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★☆</div>
+      <p class="testi-text">"PS5-nya kinclong, sewa per jam cukup hemat buat nemenin begadang. Chat ke adminnya juga responsif!"</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,var(--orange),#DC2626)">BW</div>
+        <div><div class="testi-name">Budi Wijaya</div><div class="testi-role">Gamer, Bandar Lampung</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="daftar">
+  <div class="cta-glow"></div>
+  <div style="position:relative;z-index:1">
+    <p class="section-label" style="margin-bottom:1rem">Mulai Sekarang</p>
+    <h2 class="cta-title">Daftar Gratis,<br>Sewa Langsung.</h2>
+    <p class="cta-sub">Bergabung dengan 1.200+ pengguna yang sudah merasakan kemudahan EduPlay.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="#" class="btn-primary">Buat Akun Gratis →</a>
+      <a href="#" class="btn-outline">Lihat Semua Produk</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">EduPlay</div>
+  <p>© 2024 EduPlay — Bandar Lampung, Indonesia</p>
+  <div style="display:flex;gap:1.5rem">
+    <a href="#" style="color:var(--muted);font-size:0.8rem;text-decoration:none;cursor:none">Privacy</a>
+    <a href="#" style="color:var(--muted);font-size:0.8rem;text-decoration:none;cursor:none">Terms</a>
+    <a href="#" style="color:var(--muted);font-size:0.8rem;text-decoration:none;cursor:none">Kontak</a>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});
+function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(animRing);}
+animRing();
+
+// ── COUNTER ANIMATION
+function animateCounter(el,target){
+  let start=0; const dur=2000; const step=16;
+  const inc=target/(dur/step);
+  const timer=setInterval(()=>{
+    start=Math.min(start+inc,target);
+    el.textContent=Math.floor(start)+(target===98?'%':'+');
+    if(start>=target)clearInterval(timer);
+  },step);
+}
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('.stat-num').forEach(el=>{
+        animateCounter(el,+el.dataset.target);
+      });
+      observer.disconnect();
+    }
+  });
+},{threshold:0.5});
+observer.observe(document.querySelector('.stats-strip'));
+
+// ── REVEAL ON SCROLL
+const revealObs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.add('visible'),i*80);
+    }
+  });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+// ── PRODUCT DATA - FETCH FROM API
+let products = [];
+
+async function loadProductsFromAPI() {
+  try {
+    const res = await fetch('/api/products?limit=20');
+    const data = await res.json();
+    if (data.data && data.data.length > 0) {
+      products = data.data.map(p => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        tag: p.category?.type === 'play' ? 'play' : 'edu',
+        img: p.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=60',
+        rent: p.rent_price ? `Rp ${new Intl.NumberFormat('id-ID').format(p.rent_price)}/hari` : 'Hubungi',
+        buy: p.sale_price ? `Rp ${new Intl.NumberFormat('id-ID').format(p.sale_price)}` : null
+      }));
+      initializeMarquees();
+    }
+  } catch (e) {
+    console.error('API error, using demo data:', e);
+    products = [
+      {name:'Laptop Asus E210',tag:'edu',img:'https://api.mdp.co.id/upload/pictures/product/LP5103.jpg',rent:'Rp 35.000/hari',buy:'Rp 4.500.000'},
+      {name:'Tablet Huawei MatePad',tag:'edu',img:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUGd8ujTYsJKFho2_7BK5_fHcs-XXf3eT3IA&s',rent:'Rp 25.000/hari',buy:'Rp 2.800.000'},
+      {name:'Kit Arduino Starter',tag:'edu',img:'https://store.arduino.cc/cdn/shop/files/starterkit_02.unbox_934x700.jpg?v=1773148487',rent:'Rp 20.000/hari',buy:'Rp 350.000'},
+      {name:'PlayStation 5',tag:'play',img:'https://media.dinomarket.com/docs/imgTD/2024-02/DM_CA961EB8D9C88E81647BBFE7417EB9C0_210224140212_ll.jpg',rent:'Rp 25.000/jam',buy:null},
+      {name:'Mikroskop Digital 1000x',tag:'edu',img:'https://upload.jaknot.com/2025/12/images/products/83c1c9/original/taffware-mikroskop-digital-10-mp-pembesaran-1000x-55-inch-led-display-g5.jpg',rent:'Rp 45.000/hari',buy:'Rp 850.000'},
+      {name:'Drone DJI Mini',tag:'edu',img:'https://sumberbahagia.co.id/wp-content/uploads/2026/03/dji-mini-4k-a.jpg',rent:'Rp 120.000/hari',buy:null},
+      {name:'Nintendo Switch',tag:'play',img:'https://m.media-amazon.com/images/I/51YXZgm0DbL._AC_UF894,1000_QL80_DpWeblab_.jpg',rent:'Rp 20.000/jam',buy:null},
+      {name:'Proyektor Epson',tag:'edu',img:'https://els.id/wp-content/uploads/2024/10/Epson-EB-E600.jpg',rent:'Rp 80.000/hari',buy:'Rp 3.200.000'},
+      {name:'Kamera Sony Alpha',tag:'edu',img:'https://admin.focusnusantara.com/media/catalog/product/cache/417d5822b01094047ca5b50bfdc0690a/c/s/csn24353-sony-alpha-a7-iii-kit-fe-28-70mm-f-3.5-5.6-oss_d2_1.png',rent:'Rp 150.000/hari',buy:null},
+      {name:'VR Headset Meta Quest',tag:'play',img:'https://wafuu.com/cdn/shop/products/meta-quest-2-advanced-all-in-one-virtual-reality-headset-128gb-213690.jpg?v=1695255826',rent:'Rp 35.000/jam',buy:null},
+      {name:'Raspberry Pi 4',tag:'edu',img:'https://embeddednesia.com/v1/wp-content/uploads/2020/05/rpi4-e1590678460592.jpg',rent:'Rp 30.000/hari',buy:'Rp 750.000'},
+      {name:'Osiloskop Digital',tag:'edu',img:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIdw-avYgMQ_aAzTsVJrpPF-HqlfrW_VIX3A&s',rent:'Rp 55.000/hari',buy:'Rp 1.800.000'},
+    ];
+    initializeMarquees();
+  }
+}
+
+// ── BUILD MARQUEE & FEATURED
+function initializeMarquees() {
+  function makeCard(p){
+    return `<div class="prod-card">
+      <div class="prod-card-shine"></div>
+      <img src="${p.img}" alt="${p.name}" loading="lazy">
+      <div class="prod-card-body">
+        <span class="prod-card-tag ${p.tag==='edu'?'tag-edu':'tag-play'}">${p.tag==='edu'?'EduZone':'PlayZone'}</span>
+        <div class="prod-card-name">${p.name}</div>
+        <div class="prod-card-price"><span class="price-rent">${p.rent}</span>${p.buy?`<span>• ${p.buy}</span>`:''}</div>
+      </div>
+    </div>`;
+  }
+
+  const row1=document.getElementById('row1');
+  const row2=document.getElementById('row2');
+  row1.innerHTML = '';
+  row2.innerHTML = '';
+  const half=Math.ceil(products.length/2);
+  const set1=products.slice(0,half);
+  const set2=products.slice(half);
+  // duplicate for infinite scroll
+  [...set1,...set1].forEach(p=>row1.insertAdjacentHTML('beforeend',makeCard(p)));
+  [...set2,...set2].forEach(p=>row2.insertAdjacentHTML('beforeend',makeCard(p)));
+
+  // ── FEATURED GRID
+  const featured = products.slice(0, 6);
+  const fg=document.getElementById('feat-grid');
+  fg.innerHTML = '';
+  featured.forEach(p=>{
+    const badge=p.tag==='play'?'badge-rent':(p.buy?'badge-both':'badge-rent');
+    const badgeLabel=p.tag==='play'?'Sewa Saja':(p.buy?'Sewa & Beli':'Sewa');
+    fg.insertAdjacentHTML('beforeend',`
+      <div class="feat-card">
+        <div class="feat-card-img-wrap">
+          <img class="feat-card-img" src="${p.img}" alt="${p.name}" loading="lazy">
+        </div>
+        <div class="feat-card-body">
+          <span class="feat-badge ${badge}">${badgeLabel}</span>
+          <div class="feat-name">${p.name}</div>
+          <div class="feat-price-row">
+            <div>
+              <div class="feat-rent">${p.rent}</div>
+              ${p.buy?`<div class="feat-buy">Beli: ${p.buy}</div>`:''}
+            </div>
+            <div class="feat-btn">+</div>
           </div>
+        </div>
+      </div>`);
+  });
+}
 
-          <!-- Inline Three.js + shader code -->
-          <script>
-          // Setup three.js full-screen quad with raymarching shader
-          const canvas = document.getElementById('three-canvas');
-          const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
-          renderer.setPixelRatio(window.devicePixelRatio || 1);
-          renderer.setSize(window.innerWidth, window.innerHeight);
+// ── LOAD INITIAL DATA
+loadProductsFromAPI();
 
-          const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-          const scene = new THREE.Scene();
+// ── 3D TILT
+document.querySelectorAll('.tilt-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=e.clientX-r.left,y=e.clientY-r.top;
+    const cx=r.width/2,cy=r.height/2;
+    const rx2=((y-cy)/cy)*-8;
+    const ry2=((x-cx)/cx)*8;
+    card.style.transform=`perspective(600px) rotateX(${rx2}deg) rotateY(${ry2}deg) translateY(-4px)`;
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.transform='perspective(600px) rotateX(0) rotateY(0) translateY(0)';
+  });
+});
 
-          const uniforms = {
-            iTime: { value: 0 },
-            iResolution: { value: new THREE.Vector3(window.innerWidth, window.innerHeight, 1) },
-            iMouse: { value: new THREE.Vector2(0,0) }
-          };
-
-          const vertex = `
-            varying vec2 vUv;
-            void main(){ vUv = uv; gl_Position = vec4(position,1.0); }
-          `;
-
-          const fragment = `
-            precision highp float;
-            varying vec2 vUv;
-            uniform vec3 iResolution;
-            uniform float iTime;
-            uniform vec2 iMouse;
-
-            // ---------- Helpers ----------
-            float sdSphere(vec3 p, float r){ return length(p)-r; }
-            float sdBox(vec3 p, vec3 b){ vec3 q=abs(p)-b; return length(max(q,0.0))+min(max(q.x,max(q.y,q.z)),0.0); }
-            float sdTorus(vec3 p, vec2 t){ vec2 q = vec2(length(p.xz)-t.x,p.y); return length(q)-t.y; }
-
-            float opUnion(float d1, float d2){ return min(d1,d2); }
-            float opSmoothUnion(float d1,float d2,float k){ float h = clamp(0.5+0.5*(d2-d1)/k,0.0,1.0); return mix(d2,d1,h)-k*h*(1.0-h); }
-
-            mat3 rotY(float a){ float c=cos(a), s=sin(a); return mat3(c,0.,s, 0.,1.,0., -s,0.,c); }
-            mat3 rotX(float a){ float c=cos(a), s=sin(a); return mat3(1.,0.,0., 0.,c,-s, 0.,s,c); }
-
-            float hash(float n){ return fract(sin(n)*43758.5453123); }
-            float noise(vec3 x){ return fract(sin(dot(x,vec3(12.989,78.233,45.164)))*43758.5453); }
-
-            // Map SDF scene
-            vec4 map(vec3 p){
-              float t = iTime*0.6;
-              vec3 sphP = p - vec3(0.0, 0.0, -6.0);
-              float d = sdSphere(sphP, 2.2);
-              float tor = sdTorus(p - vec3(0.0,0.0,-6.0), vec2(4.2,0.32));
-              d = opSmoothUnion(d, tor, 0.6);
-              vec3 bp = p - vec3(sin(t*0.6)*6.0, cos(t*0.4)*2.2, -8.0);
-              float b1 = sdBox(bp, vec3(1.6,1.6,1.6));
-              vec3 bp2 = p - vec3(cos(t*0.5)*-7.5, sin(t*0.3)*3.0, -10.0);
-              float b2 = sdBox(bp2, vec3(1.2,1.2,1.2));
-              d = opSmoothUnion(d, b1, 0.3);
-              d = opSmoothUnion(d, b2, 0.4);
-              for(int i=0;i<6;i++){
-                float a = float(i)/6.0*6.28318 + t*0.8;
-                vec3 op = vec3(cos(a)*9.0, sin(a*0.6)*3.2, -7.0 + sin(a*0.8)*1.6);
-                float o = sdSphere(p - op, 0.35);
-                d = min(d,o);
-              }
-              float floorDist = (p.y + 4.0);
-              float sceneDist = min(d, floorDist);
-              return vec4(sceneDist, d, 0.0, 0.0);
-            }
-
-            vec3 calcNormal(vec3 p){
-              float e = 0.0008;
-              vec3 n;
-              n.x = map(p+vec3(e,0,0)).x - map(p-vec3(e,0,0)).x;
-              n.y = map(p+vec3(0,e,0)).x - map(p-vec3(0,e,0)).x;
-              n.z = map(p+vec3(0,0,e)).x - map(p-vec3(0,0,e)).x;
-              return normalize(n);
-            }
-
-            float softShadow(vec3 ro, vec3 rd, float mint, float maxt, float k){
-              float res=1.0; float t=mint;
-              for(int i=0;i<32;i++){
-                float h = map(ro+rd*t).x;
-                if(h<0.001) return 0.0;
-                res=min(res, k*h/t);
-                t += clamp(h,0.02,0.2);
-                if(t>maxt) break;
-              }
-              return clamp(res,0.0,1.0);
-            }
-
-            vec3 tonemap(vec3 c){ c = c / (c + vec3(1.0)); return pow(c, vec3(0.45)); }
-
-            vec4 raymarch(vec3 ro, vec3 rd){
-              float t=0.0; float d; vec3 col=vec3(0.0);
-              for(int i=0;i<120;i++){
-                vec3 pos = ro + rd * t;
-                vec4 m = map(pos);
-                d = m.x;
-                if(d<0.001) {
-                  vec3 n = calcNormal(pos);
-                  vec3 lightDir = normalize(vec3(0.8,1.0,0.6));
-                  float diff = max(dot(n,lightDir),0.0);
-                  vec3 base = vec3(0.12,0.9,0.8);
-                  if(length(pos - vec3(0.0,0.0,-6.0))<3.6) base = vec3(0.08,0.36,0.6);
-                  float mixv = smoothstep(-6.0,6.0,pos.x);
-                  base = mix(vec3(0.12,0.9,0.8), vec3(0.48,0.28,1.0), mixv);
-                  float fres = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
-                  float sh = softShadow(pos + n*0.01, lightDir, 0.01, 14.0, 32.0);
-                  col = base * diff * sh + base * 0.08 * fres;
-                  break;
-                }
-                t += clamp(d, 0.02, 0.6);
-                if(t>60.0) break;
-              }
-              vec2 uv = vUv - 0.5;
-              float neb = 0.2 * (0.5 + 0.5*sin(iTime*0.12 + uv.x*6.0));
-              vec3 bg = mix(vec3(0.03,0.02,0.06), vec3(0.08,0.02,0.12), uv.y+0.5);
-              float s = fract(sin(dot(vec2(vUv.x*1234.5,vUv.y*3456.7),vec2(12.9898,78.233))) * 43758.5453);
-              bg += vec3(s*s*s)*0.6;
-              vec3 final = tonemap(col + bg*neb);
-              return vec4(final,1.0);
-            }
-
-            void main(){
-              vec2 uv = (vUv * 2.0 - 1.0) * vec2(iResolution.x/iResolution.y, 1.0);
-              vec3 ro = vec3(0.0,0.0,6.0);
-              vec2 m = (iMouse.xy / iResolution.xy - 0.5) * 2.0;
-              ro.x += m.x * 3.0; ro.y -= m.y * 2.0;
-              vec3 rd = normalize(vec3(uv.x + m.x*0.35, uv.y + m.y*0.25, -1.8));
-              vec4 color = raymarch(ro, rd);
-              gl_FragColor = vec4(color.rgb,1.0);
-            }
-          `;
-
-          const mat = new THREE.ShaderMaterial({
-            vertexShader: vertex,
-            fragmentShader: fragment,
-            uniforms: uniforms
-          });
-
-          const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat);
-          scene.add(quad);
-
-          window.addEventListener('mousemove', (e)=>{
-            uniforms.iMouse.value.x = e.clientX;
-            uniforms.iMouse.value.y = window.innerHeight - e.clientY;
-          });
-
-          window.addEventListener('resize', ()=>{
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            uniforms.iResolution.value.set(window.innerWidth, window.innerHeight, 1);
-          });
-
-          const clock = new THREE.Clock();
-          function render(){
-            uniforms.iTime.value = clock.getElapsedTime();
-            renderer.render(scene, camera);
-            requestAnimationFrame(render);
-          }
-          render();
-
-          const menuBtn = document.getElementById('menuBtn');
-          const navLinksEl = document.getElementById('navLinks');
-          menuBtn?.addEventListener('click', ()=> navLinksEl.classList.toggle('active'));
-          </script>
-        </body>
-        </html>
+// ── NAV scroll effect
+window.addEventListener('scroll',()=>{
+  document.querySelector('nav').style.background=
+    window.scrollY>50?'rgba(5,5,15,0.92)':'rgba(5,5,15,0.7)';
+});
+</script>
+</body>
+</html>

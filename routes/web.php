@@ -9,6 +9,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\SellerController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProfileController;
 
 // ─── AUTH ───────────────────────────────────────────
 Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');
@@ -22,6 +23,11 @@ Route::view('/', 'welcome')->name('welcome');
 
 // ─── BUYER (auth required) ──────────────────────────
 Route::middleware('auth')->group(function () {
+    // Profile (buyer)
+    Route::get('/profil', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
     // Catalog
     Route::get('/katalog', [CatalogController::class, 'index'])->name('catalog');
     Route::get('/produk/{product}', [ProductController::class, 'show'])->name('product.show');
@@ -34,9 +40,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/keranjang/voucher',[CartController::class, 'applyVoucher'])->name('cart.voucher');
 
     // Checkout
-    Route::get('/checkout',          [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout',         [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('/checkout/sukses/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/beli-sekarang',     [CheckoutController::class, 'buyNow'])->name('checkout.buy-now');
+    Route::post('/checkout/sewa-sekarang',     [CheckoutController::class, 'rentNow'])->name('checkout.rent-now');
+    Route::get('/checkout',                    [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout',                   [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/pembayaran/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+    Route::get('/checkout/sukses/{order}',     [CheckoutController::class, 'success'])->name('checkout.success');
+
+    // Orders (buyer history)
+    Route::get('/pesanan',                     [OrderController::class, 'buyerIndex'])->name('orders.buyer');
+    Route::get('/pesanan/{order}',             [OrderController::class, 'buyerShow'])->name('orders.show');
 
     // Chat (buyer)
     Route::get('/chat',              [ChatController::class, 'buyerIndex'])->name('chat.buyer');

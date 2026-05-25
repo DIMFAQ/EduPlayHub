@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +11,14 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        if (Auth::check()) return redirect()->intended(route('catalog'));
+        if (Auth::check()) {
+            /** @var User $user */
+            $user = Auth::user();
+            if ($user->role === 'seller') {
+                return redirect()->route('seller.dashboard');
+            }
+            return redirect()->intended(route('catalog'));
+        }
         return view('auth.form', ['mode' => 'login']);
     }
 
@@ -46,32 +52,19 @@ class AuthController extends Controller
         $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users',
-            'password'  => 'required|string|min:6|confirmed',
-            'role'      => 'required|in:buyer,seller',
-            'shop_name' => 'required_if:role,seller|nullable|string|max:255',
+            'password'  => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => $request->role,
+            'role'     => 'buyer',
         ]);
-
-        if ($request->role === 'seller') {
-            Shop::create([
-                'user_id'  => $user->id,
-                'name'     => $request->shop_name ?? $request->name . "'s Shop",
-                'city'     => 'Indonesia',
-            ]);
-        }
 
         Auth::login($user);
         $request->session()->regenerate();
 
-        if ($user->role === 'seller') {
-            return redirect()->route('seller.dashboard');
-        }
         return redirect()->route('catalog');
     }
 

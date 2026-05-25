@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,4 +51,61 @@ class OrderController extends Controller
 
         return back()->with('success', 'Status pesanan diperbarui.');
     }
+
+    /**
+     * Buyer's order history list
+     */
+    public function buyerIndex(Request $request)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        
+        $query = Order::where('user_id', $user->id)
+            ->with(['items.product', 'shop'])
+            ->when($request->status && $request->status !== 'semua',
+                fn($q) => $q->where('status', $request->status))
+            ->when($request->type && $request->type !== 'semua',
+                fn($q) => $q->where('type', $request->type))
+            ->when($request->search, function ($q) use ($request) {
+                $s = '%' . $request->search . '%';
+                $q->where('order_number', 'like', $s)
+                  ->orWhere('order_code', 'like', $s)
+                  ->orWhereHas('items.product', fn($p) => $p->where('name', 'like', $s));
+            })
+            ->latest();
+
+        $orders = $query->paginate(10)->withQueryString();
+
+        $statusCounts = [
+            'semua'    => Order::where('user_id', $user->id)->count(),
+            'pending'  => Order::where('user_id', $user->id)->where('payment_status', 'pending')->count(),
+            'masuk'    => Order::where('user_id', $user->id)->where('status', 'masuk')->count(),
+            'proses'   => Order::where('user_id', $user->id)->where('status', 'proses')->count(),
+            'kirim'    => Order::where('user_id', $user->id)->where('status', 'kirim')->count(),
+            'selesai'  => Order::where('user_id', $user->id)->where('status', 'selesai')->count(),
+        ];
+
+        $cartCount = $user->cartCount();
+
+        return view('buyer.orders', compact('orders', 'statusCounts', 'request', 'cartCount'));
+    }
+
+    /**
+     * Buyer's order detail
+     */
+    public function buyerShow(Order $order)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        
+        if ($order->user_id !== $user->id) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        $order->load('items.product', 'shop');
+        $cartCount = $user->cartCount();
+
+        return view('buyer.order-detail', compact('order', 'cartCount'));
+    }
 }
+

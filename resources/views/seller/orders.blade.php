@@ -5,33 +5,33 @@
 @push('styles')
 <style>
 .filter-bar{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;align-items:center}
-.filter-tabs{display:flex;gap:4px;background:white;padding:4px;border-radius:40px;border:1px solid var(--border-soft)}
-.tab{padding:7px 16px;border-radius:40px;font-size:12.5px;font-weight:600;color:var(--ink-mid);text-decoration:none;transition:0.18s;border:none;background:none;cursor:pointer;font-family:inherit}
-.tab:hover{color:var(--ink)}
-.tab.active{background:var(--accent);color:white}
+.filter-tabs{display:flex;gap:4px;background:var(--card-bg);padding:4px;border-radius:40px;border:1px solid var(--card-border);backdrop-filter:blur(20px)}
+.tab{padding:7px 16px;border-radius:40px;font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:none;transition:0.18s;border:none;background:none;cursor:pointer;font-family:inherit}
+.tab:hover{color:var(--text)}
+.tab.active{background:linear-gradient(135deg,var(--indigo),var(--indigo-dark));color:white}
 .search-wrap{flex:1;min-width:200px;max-width:340px;position:relative}
 .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--ink-dim)}
-.search-input{width:100%;padding:9px 14px 9px 36px;border-radius:40px;border:1px solid var(--border-soft);background:white;font-size:13px;font-family:inherit;color:var(--ink)}
-.search-input:focus{outline:none;border-color:var(--accent)}
-.orders-table{background:white;border-radius:20px;border:1px solid var(--border-soft);box-shadow:var(--shadow-soft);overflow:hidden}
+.search-input{width:100%;padding:9px 14px 9px 36px;border-radius:40px;border:1px solid var(--card-border);background:var(--card-bg);font-size:13px;font-family:inherit;color:var(--text)}
+.search-input:focus{outline:none;border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,0.15)}
+.orders-table{background:var(--card-bg);border-radius:20px;border:1px solid var(--card-border);box-shadow:var(--shadow);overflow:hidden;backdrop-filter:blur(20px)}
 table{width:100%;border-collapse:collapse}
-thead{background:var(--bg)}
-th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px}
-td{padding:14px 16px;font-size:13px;border-top:1px solid var(--border-soft)}
-tr:hover td{background:rgba(42,95,196,0.02)}
+thead{background:rgba(255,255,255,0.03)}
+th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+td{padding:14px 16px;font-size:13px;border-top:1px solid var(--card-border);color:var(--text)}
+tr:hover td{background:rgba(79,70,229,0.05)}
 .status-badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700}
-.status-masuk{background:rgba(239,68,68,0.1);color:#dc2626}
-.status-proses{background:rgba(59,130,246,0.1);color:#2563eb}
-.status-kirim{background:rgba(14,165,233,0.1);color:#0284c7}
-.status-selesai{background:rgba(34,197,94,0.1);color:#16a34a}
-.status-dibatalkan{background:rgba(156,163,175,0.1);color:#6b7280}
-.order-no{font-weight:700;color:var(--accent)}
+.status-masuk{background:rgba(249,115,22,0.12);color:var(--orange-light)}
+.status-proses{background:rgba(14,165,233,0.12);color:var(--sky-light)}
+.status-kirim{background:rgba(129,140,248,0.12);color:var(--indigo-light)}
+.status-selesai{background:rgba(34,197,94,0.12);color:#4ade80}
+.status-dibatalkan{background:rgba(148,163,184,0.12);color:#cbd5e1}
+.order-no{font-weight:700;color:var(--indigo-light)}
 .customer-name{font-weight:600}
 .total-val{font-weight:700}
 .action-btns{display:flex;gap:6px;align-items:center}
-.status-select{padding:5px 10px;border-radius:10px;border:1px solid var(--border-soft);background:var(--bg);font-size:12px;font-family:inherit;color:var(--ink);cursor:pointer}
-.status-select:focus{outline:none;border-color:var(--accent)}
-.empty-row td{text-align:center;padding:60px;color:var(--ink-dim)}
+.status-select{padding:5px 10px;border-radius:10px;border:1px solid var(--card-border);background:rgba(255,255,255,0.05);font-size:12px;font-family:inherit;color:var(--text);cursor:pointer}
+.status-select:focus{outline:none;border-color:var(--indigo)}
+.empty-row td{text-align:center;padding:60px;color:var(--muted)}
 </style>
 @endpush
 
@@ -89,7 +89,7 @@ tr:hover td{background:rgba(42,95,196,0.02)}
         <td><span class="total-val">{{ $order->fmtTotal() }}</span></td>
         <td>
           <span style="font-size:11px;font-weight:600;color:{{ $order->type==='sewa' ? '#4f46e5' : '#16a34a' }}">
-            {{ $order->type === 'sewa' ? '📅 Sewa' : '🛒 Beli' }}
+            {{ $order->type === 'sewa' ? 'Sewa' : 'Beli' }}
           </span>
           @if($order->rental_start)
           <div style="font-size:10px;color:var(--ink-dim)">{{ $order->rental_start->format('d/m') }}–{{ $order->rental_end->format('d/m') }}</div>
@@ -106,7 +106,9 @@ tr:hover td{background:rgba(42,95,196,0.02)}
                 @endforeach
               </select>
             </form>
-            <a href="{{ route('chat.conversation', $order->user) }}" title="Chat" style="color:var(--accent);text-decoration:none;font-size:16px">💬</a>
+            <a href="{{ route('chat.conversation', $order->user) }}" title="Chat" style="color:var(--accent);text-decoration:none;display:inline-flex;align-items:center">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"><path d="M21 15a4 4 0 01-4 4H7l-4 3V7a4 4 0 014-4h10a4 4 0 014 4z"/></svg>
+            </a>
           </div>
         </td>
       </tr>

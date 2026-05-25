@@ -18,21 +18,26 @@ class ChatController extends Controller
             ->orderByDesc('last_message_at')
             ->get();
 
-        $cartCount = Auth::user()->cartCount();
+        /** @var User $user */
+        $user = Auth::user();
+        $cartCount = $user->cartCount();
         return view('buyer.chat_list', compact('conversations', 'cartCount'));
     }
 
     /** Contact / Find seller page */
     public function contactPage()
     {
-        $sellers   = User::where('role', 'seller')->with('shop')->get();
-        $cartCount = Auth::user()->cartCount();
-        return view('buyer.contact_chat', compact('sellers', 'cartCount'));
+        $seller   = User::where('role', 'seller')->with('shop')->first();
+        /** @var User $user */
+        $user = Auth::user();
+        $cartCount = $user->cartCount();
+        return view('buyer.contact_chat', compact('seller', 'cartCount'));
     }
 
     /** Open or create conversation with a user */
     public function conversation(User $user)
     {
+        /** @var User $me */
         $me = Auth::user();
 
         // Determine buyer/seller roles
@@ -53,14 +58,17 @@ class ChatController extends Controller
         $conversation->load(['messages.sender', 'buyer', 'seller']);
 
         $otherUser = $me->id === $buyerId ? $conversation->seller : $conversation->buyer;
-        $cartCount = $me->cartCount();
+        $cartCount = $me->role === 'buyer' ? $me->cartCount() : 0;
 
-        return view('buyer.chat_room', compact('conversation', 'otherUser', 'cartCount'));
+        // Return appropriate view based on user role
+        $view = $me->role === 'buyer' ? 'buyer.chat_room' : 'seller.chat_room';
+        return view($view, compact('conversation', 'otherUser', 'cartCount'));
     }
 
     public function sendMessage(Request $request, User $user)
     {
         $request->validate(['body' => 'required|string|max:2000']);
+        /** @var User $me */
         $me = Auth::user();
 
         [$buyerId, $sellerId] = $me->role === 'buyer'
@@ -91,6 +99,7 @@ class ChatController extends Controller
 
     public function getMessages(User $user)
     {
+        /** @var User $me */
         $me = Auth::user();
         [$buyerId, $sellerId] = $me->role === 'buyer'
             ? [$me->id, $user->id]

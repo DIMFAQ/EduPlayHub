@@ -19,12 +19,12 @@ class DatabaseSeeder extends Seeder
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         // ─── CATEGORIES ─────────────────────────────
         $categories = [
-            ['name' => 'Elektronik Edukasi', 'slug' => 'elektronik-edukasi', 'icon' => '💻'],
-            ['name' => 'Alat Peraga',         'slug' => 'alat-peraga',         'icon' => '🔬'],
-            ['name' => 'Mainan Edukatif',     'slug' => 'mainan-edukatif',     'icon' => '🧩'],
-            ['name' => 'Buku & Media',        'slug' => 'buku-media',          'icon' => '📚'],
-            ['name' => 'Robotika',            'slug' => 'robotika',            'icon' => '🤖'],
-            ['name' => 'Sains & Lab',         'slug' => 'sains-lab',           'icon' => '⚗️'],
+            ['name' => 'Elektronik Edukasi', 'slug' => 'elektronik-edukasi', 'icon' => 'laptop'],
+            ['name' => 'Alat Peraga',         'slug' => 'alat-peraga',         'icon' => 'beaker'],
+            ['name' => 'Mainan Edukatif',     'slug' => 'mainan-edukatif',     'icon' => 'puzzle'],
+            ['name' => 'Buku & Media',        'slug' => 'buku-media',          'icon' => 'book'],
+            ['name' => 'Robotika',            'slug' => 'robotika',            'icon' => 'robot'],
+            ['name' => 'Sains & Lab',         'slug' => 'sains-lab',           'icon' => 'flask'],
         ];
         foreach ($categories as $cat) {
             Category::create($cat);
@@ -46,16 +46,8 @@ class DatabaseSeeder extends Seeder
         // ─── DEMO SELLERS ────────────────────────────
         $sellers = [
             [
-                'user' => ['name' => 'Toko EduTech', 'email' => 'seller@demo.com', 'city' => 'Jakarta'],
-                'shop' => ['name' => 'EduTech Store', 'city' => 'Jakarta', 'rating' => 4.8, 'total_sales' => 234],
-            ],
-            [
-                'user' => ['name' => 'Rina Wijaya', 'email' => 'rina@demo.com', 'city' => 'Bandung'],
-                'shop' => ['name' => 'ScienceLab Bandung', 'city' => 'Bandung', 'rating' => 4.9, 'total_sales' => 187],
-            ],
-            [
-                'user' => ['name' => 'Doni Prasetyo', 'email' => 'doni@demo.com', 'city' => 'Surabaya'],
-                'shop' => ['name' => 'RoboKids SBY', 'city' => 'Surabaya', 'rating' => 4.7, 'total_sales' => 142],
+                'user' => ['name' => 'Toko EduTech', 'email' => 'seller@demo.com', 'city' => 'Bandar Lampung'],
+                'shop' => ['name' => 'EduTech Store', 'city' => 'Bandar Lampung', 'rating' => 4.8, 'total_sales' => 234],
             ],
         ];
 
@@ -75,20 +67,18 @@ class DatabaseSeeder extends Seeder
         // ─── PRODUCTS ────────────────────────────────
         $products = [
             // EduTech Store
-            ['shop_idx'=>0,'cat'=>'Elektronik Edukasi','name'=>'Laptop Edukasi Asus E210','price_rent'=>35000,'price_buy'=>4500000,'stock'=>8,'location'=>'Jakarta','desc'=>'Laptop ringan untuk keperluan belajar, sudah terinstall software pendidikan.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/1/500/400'],
-            ['shop_idx'=>0,'cat'=>'Elektronik Edukasi','name'=>'Tablet Android Huawei MatePad','price_rent'=>25000,'price_buy'=>2800000,'stock'=>12,'location'=>'Jakarta','desc'=>'Tablet Android dengan layar 10 inci, ideal untuk membaca dan belajar online.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/2/500/400'],
-            ['shop_idx'=>0,'cat'=>'Robotika','name'=>'Kit Robot Arduino Starter','price_rent'=>20000,'price_buy'=>350000,'stock'=>15,'location'=>'Jakarta','desc'=>'Paket lengkap belajar robotika dengan Arduino UNO, breadboard, dan komponen.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/3/500/400'],
-            ['shop_idx'=>0,'cat'=>'Mainan Edukatif','name'=>'LEGO Education Spike Essential','price_rent'=>40000,'price_buy'=>1800000,'stock'=>6,'location'=>'Jakarta','desc'=>'Set LEGO Education untuk belajar coding dan mekatronika secara menyenangkan.','rentable'=>true,'sellable'=>false,'img'=>'https://picsum.photos/id/4/500/400'],
-            // ScienceLab Bandung
-            ['shop_idx'=>1,'cat'=>'Sains & Lab','name'=>'Mikroskop Digital 1000x','price_rent'=>45000,'price_buy'=>850000,'stock'=>5,'location'=>'Bandung','desc'=>'Mikroskop digital dengan pembesaran hingga 1000x dan koneksi USB ke komputer.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/5/500/400'],
-            ['shop_idx'=>1,'cat'=>'Alat Peraga','name'=>'Globe Interaktif 3D','price_rent'=>15000,'price_buy'=>280000,'stock'=>10,'location'=>'Bandung','desc'=>'Globe interaktif dengan augmented reality, scan dengan app untuk info detail.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/6/500/400'],
-            ['shop_idx'=>1,'cat'=>'Sains & Lab','name'=>'Kit Kimia Eksperimen Aman','price_rent'=>30000,'price_buy'=>450000,'stock'=>8,'location'=>'Bandung','desc'=>'Set eksperimen kimia aman untuk anak SD-SMP, sudah termasuk panduan lengkap.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/7/500/400'],
-            ['shop_idx'=>1,'cat'=>'Buku & Media','name'=>'Ensiklopedi Sains Anak 10 Jilid','price_rent'=>10000,'price_buy'=>650000,'stock'=>20,'location'=>'Bandung','desc'=>'Kumpulan buku ensiklopedi sains lengkap untuk anak usia 6-15 tahun.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/8/500/400'],
-            // RoboKids SBY
-            ['shop_idx'=>2,'cat'=>'Robotika','name'=>'mBot STEM Robot Kit','price_rent'=>35000,'price_buy'=>900000,'stock'=>7,'location'=>'Surabaya','desc'=>'Robot programmable Makeblock mBot, cocok untuk belajar pemrograman Scratch dan Arduino.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/9/500/400'],
-            ['shop_idx'=>2,'cat'=>'Mainan Edukatif','name'=>'Puzzle 3D Sistem Tata Surya','price_rent'=>12000,'price_buy'=>180000,'stock'=>15,'location'=>'Surabaya','desc'=>'Puzzle 3D edukatif sistem tata surya, bisa dirakit menjadi model yang bisa digantung.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/10/500/400'],
-            ['shop_idx'=>2,'cat'=>'Elektronik Edukasi','name'=>'Coding Mouse Bee-Bot','price_rent'=>18000,'price_buy'=>420000,'stock'=>10,'location'=>'Surabaya','desc'=>'Robot mouse Bee-Bot untuk belajar konsep dasar coding tanpa layar.','rentable'=>true,'sellable'=>true,'img'=>'https://picsum.photos/id/11/500/400'],
-            ['shop_idx'=>2,'cat'=>'Alat Peraga','name'=>'Planetarium Portable Kecil','price_rent'=>50000,'price_buy'=>1200000,'stock'=>4,'location'=>'Surabaya','desc'=>'Proyektor planetarium portabel untuk menampilkan langit berbintang di dalam ruangan.','rentable'=>true,'sellable'=>false,'img'=>'https://picsum.photos/id/12/500/400'],
+            ['shop_idx'=>0,'cat'=>'Elektronik Edukasi','name'=>'Laptop Edukasi Asus E210','price_rent'=>35000,'price_buy'=>4500000,'stock'=>8,'location'=>'Bandar Lampung','desc'=>'Laptop ringan untuk keperluan belajar, sudah terinstall software pendidikan.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Elektronik Edukasi','name'=>'Tablet Android Huawei MatePad','price_rent'=>25000,'price_buy'=>2800000,'stock'=>12,'location'=>'Bandar Lampung','desc'=>'Tablet Android dengan layar 10 inci, ideal untuk membaca dan belajar online.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Robotika','name'=>'Kit Robot Arduino Starter','price_rent'=>20000,'price_buy'=>350000,'stock'=>15,'location'=>'Bandar Lampung','desc'=>'Paket lengkap belajar robotika dengan Arduino UNO, breadboard, dan komponen.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Mainan Edukatif','name'=>'LEGO Education Spike Essential','price_rent'=>40000,'price_buy'=>1800000,'stock'=>6,'location'=>'Bandar Lampung','desc'=>'Set LEGO Education untuk belajar coding dan mekatronika secara menyenangkan.','rentable'=>true,'sellable'=>false,'img'=>'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Sains & Lab','name'=>'Mikroskop Digital 1000x','price_rent'=>45000,'price_buy'=>850000,'stock'=>5,'location'=>'Bandar Lampung','desc'=>'Mikroskop digital dengan pembesaran hingga 1000x dan koneksi USB ke komputer.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Alat Peraga','name'=>'Globe Interaktif 3D','price_rent'=>15000,'price_buy'=>280000,'stock'=>10,'location'=>'Bandar Lampung','desc'=>'Globe interaktif dengan augmented reality, scan dengan app untuk info detail.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Sains & Lab','name'=>'Kit Kimia Eksperimen Aman','price_rent'=>30000,'price_buy'=>450000,'stock'=>8,'location'=>'Bandar Lampung','desc'=>'Set eksperimen kimia aman untuk anak SD-SMP, sudah termasuk panduan lengkap.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Buku & Media','name'=>'Ensiklopedi Sains Anak 10 Jilid','price_rent'=>10000,'price_buy'=>650000,'stock'=>20,'location'=>'Bandar Lampung','desc'=>'Kumpulan buku ensiklopedi sains lengkap untuk anak usia 6-15 tahun.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Robotika','name'=>'mBot STEM Robot Kit','price_rent'=>35000,'price_buy'=>900000,'stock'=>7,'location'=>'Bandar Lampung','desc'=>'Robot programmable Makeblock mBot, cocok untuk belajar pemrograman Scratch dan Arduino.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1535378917042-10a22c95931a?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Mainan Edukatif','name'=>'Puzzle 3D Sistem Tata Surya','price_rent'=>12000,'price_buy'=>180000,'stock'=>15,'location'=>'Bandar Lampung','desc'=>'Puzzle 3D edukatif sistem tata surya, bisa dirakit menjadi model yang bisa digantung.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Elektronik Edukasi','name'=>'Coding Mouse Bee-Bot','price_rent'=>18000,'price_buy'=>420000,'stock'=>10,'location'=>'Bandar Lampung','desc'=>'Robot mouse Bee-Bot untuk belajar konsep dasar coding tanpa layar.','rentable'=>true,'sellable'=>true,'img'=>'https://images.unsplash.com/photo-1531492746076-161ca9bcad58?auto=format&fit=crop&w=600&q=60'],
+            ['shop_idx'=>0,'cat'=>'Alat Peraga','name'=>'Planetarium Portable Kecil','price_rent'=>50000,'price_buy'=>1200000,'stock'=>4,'location'=>'Bandar Lampung','desc'=>'Proyektor planetarium portabel untuk menampilkan langit berbintang di dalam ruangan.','rentable'=>true,'sellable'=>false,'img'=>'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?auto=format&fit=crop&w=600&q=60'],
         ];
 
         $catMap = Category::pluck('id', 'name');

@@ -12,7 +12,9 @@ class CartController extends Controller
 {
     public function index()
     {
-        $items     = Auth::user()->cartItems()->with('product.shop')->get();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $items     = $user->cartItems()->with('product.shop')->get();
         $cartCount = $items->count();
 
         $subtotal  = $items->where('selected', true)
@@ -56,7 +58,9 @@ class CartController extends Controller
         }
 
         if ($request->ajax()) {
-            return response()->json(['count' => Auth::user()->cartCount(), 'success' => true]);
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            return response()->json(['count' => $user->cartCount(), 'success' => true]);
         }
 
         return back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
@@ -84,7 +88,9 @@ class CartController extends Controller
     {
         CartItem::where('user_id', Auth::id())->findOrFail($id)->delete();
         if (request()->ajax()) {
-            return response()->json(['success' => true, 'count' => Auth::user()->cartCount()]);
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            return response()->json(['success' => true, 'count' => $user->cartCount()]);
         }
         return back()->with('success', 'Item dihapus dari keranjang.');
     }
@@ -106,6 +112,8 @@ class CartController extends Controller
 
     public function count()
     {
-        return response()->json(['count' => Auth::user()->cartCount()]);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        return response()->json(['count' => $user->cartCount()]);
     }
 }

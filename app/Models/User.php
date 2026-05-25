@@ -4,13 +4,28 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $password
  * @property string $role
+ * @property string|null $avatar
+ * @property string|null $phone
+ * @property string|null $address
+ * @property string|null $city
+ * @property string|null $province
+ * @property string|null $postal_code
+ * @property-read \Illuminate\Database\Eloquent\Collection $cartItems
+ * @property-read \Illuminate\Database\Eloquent\Collection $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection $sentMessages
+ * @method int cartCount() Get cart item count
  */
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable;
 
     protected $fillable = [
         'name', 'email', 'password', 'role',
@@ -27,7 +42,7 @@ class User extends Authenticatable
         return $this->hasOne(Shop::class);
     }
 
-    public function cartItems()
+    public function cartItems(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CartItem::class);
     }
@@ -50,7 +65,7 @@ class User extends Authenticatable
 
     public function cartCount(): int
     {
-        return $this->cartItems()->count();
+        return (int) $this->cartItems()->count();
     }
 
     public function initials(): string

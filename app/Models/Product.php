@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $shop_id
+ * @property string|null $image
+ */
 class Product extends Model
 {
     protected $fillable = [
@@ -34,10 +39,20 @@ class Product extends Model
 
     public function mainImage(): string
     {
-        return $this->image ?? 'https://picsum.photos/id/20/500/400';
+        if (!$this->image) {
+            return 'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=600&q=60';
+        }
+        
+        // If image is a full URL (external), return as is
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+        
+        // If image is a local path, wrap with asset/storage
+        return asset('storage/' . $this->image);
     }
 
-    public function scopeActive($q)  { return $q->where('is_active', true); }
-    public function scopeRentable($q){ return $q->where('rentable', true); }
-    public function scopeSellable($q){ return $q->where('sellable', true); }
+    public function scopeActive(Builder $q): Builder  { return $q->where('is_active', true); }
+    public function scopeRentable(Builder $q): Builder{ return $q->where('rentable', true); }
+    public function scopeSellable(Builder $q): Builder{ return $q->where('sellable', true); }
 }
