@@ -37,7 +37,7 @@ class CatalogController extends Controller
                   ->orWhereHas('shop', fn($sh) => $sh->where('name', 'like', $s));
             });
 
-        $perPage   = (int) ($request->per_page ?? 12);
+        $perPage   = (int) ($request->per_page ?? 15);
         $products  = $query->paginate($perPage)->withQueryString();
 
         $categories = Category::withCount(['products' => fn($q) => $q->active()])->get();
@@ -51,11 +51,12 @@ class CatalogController extends Controller
     /** JSON endpoint for dynamic filter (AJAX) */
     public function apiProducts(Request $request)
     {
+        $perPage = (int) ($request->per_page ?? 15);
         $products = Product::with(['shop', 'category'])
             ->active()
             ->when($request->category && $request->category !== 'all',
                 fn($q) => $q->whereHas('category', fn($c) => $c->where('slug', $request->category)))
-            ->paginate(12);
+            ->paginate($perPage);
 
         return response()->json($products);
     }
