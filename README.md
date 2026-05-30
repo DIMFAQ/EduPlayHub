@@ -1,405 +1,314 @@
-# 🎓 EduPlayHub Backend
+# 🎓 EduPlayHub - E-Commerce Platform & REST API
 
-**Platform e-commerce untuk rental & pembelian alat mahasiswa**
+**Platform E-Commerce & Marketplace untuk Rental & Pembelian Alat Mahasiswa**
 
-REST API backend dibangun dengan **Laravel 11** dan **MySQL**, menyediakan sistem checkout dan pembayaran QRIS yang simulasi untuk keperluan demo.
+EduPlayHub adalah platform e-commerce/marketplace terintegrasi yang dirancang untuk mempermudah mahasiswa dalam menyewa (rental) maupun membeli peralatan kuliah (seperti laptop, proyektor, printer, alat laboratorium, dll.). 
+
+Project ini menyediakan **Web Application** (menggunakan Laravel Blade untuk antarmuka pembeli & penjual) sekaligus **REST API Backend** (menggunakan Laravel 11, MySQL, dan Laravel Sanctum) yang siap dikonsumsi oleh aplikasi mobile (Android/iOS) atau frontend modern lainnya.
 
 ---
 
 ## 📋 Fitur Utama
 
-✅ **Sistem Checkout**
-- Tambah produk ke pesanan
-- Auto validasi stok
-- Perhitungan harga otomatis
-- Status tracking: pending → paid
+### 🔐 1. Sistem Autentikasi
+*   **Web Authentication**: Login, register, dan logout berbasis sesi web.
+*   **REST API Authentication**: Keamanan endpoint menggunakan **Laravel Sanctum** (token bearer).
+*   **Profile Management**: Update informasi profil, ubah password, dan upload avatar.
 
-✅ **Pembayaran QRIS (Simulasi)**
-- Generate QRIS code dummy
-- Upload bukti pembayaran (image)
-- Admin verifikasi pembayaran
-- Update status order otomatis
+### 🛍️ 2. Katalog Produk & Toko (Shop)
+*   **Multi-Merchant / Shop**: Pengguna dapat bertindak sebagai **Buyer** (pembeli) atau **Seller** (pemilik toko/shop).
+*   **Katalog Terfilter**: Pencarian produk berdasarkan nama, deskripsi, kategori, tipe (jual/sewa), rentang harga, dan status aktif.
+*   **Multi-Image & Variant**: Dukungan untuk banyak foto produk (gallery) dan varian produk (ukuran, warna, spesifikasi).
+*   **SEO-Friendly URLs**: Menggunakan slug unik untuk detail produk.
 
-✅ **Database Terstruktur**
-- Tabel: `produk`, `pesanan`, `item_pesanan`, `pembayaran`, `users`
-- Relasi Eloquent lengkap
-- Foreign key constraints
+### 🛒 3. Keranjang (Cart) & Voucher
+*   **Manajemen Keranjang**: Tambah, ubah jumlah, hapus item, dan pilih item yang akan dicheckout.
+*   **Sistem Voucher**: Klaim kode voucher untuk mendapatkan diskon belanja (persentase / nilai nominal maksimal).
 
-✅ **API RESTful**
-- 6 endpoint siap pakai
-- Input validation lengkap
-- Error handling
-- JSON response
+### 💳 4. Checkout & Integrasi Payment Gateway (Midtrans)
+*   **Dua Mode Transaksi**:
+    *   **Beli (Purchase)**: Pembelian barang putus dengan pengurangan stok otomatis.
+    *   **Sewa (Rental)**: Penyewaan barang dengan perhitungan tarif harian berdasarkan durasi hari sewa yang diinput.
+*   **Midtrans Snap API**: Generate Snap token otomatis saat checkout untuk pembayaran instan & aman (mendukung QRIS, GoPay, ShopeePay, Virtual Account, dll.).
+*   **Automated Callback Handler**: Sinkronisasi status pesanan (`pending` ➔ `paid` ➔ `expired` ➔ `cancelled`) secara otomatis melalui webhook callback Midtrans.
+
+### 💬 5. Chat Real-Time (Buyer ➔ Seller)
+*   **Ruang Obrolan Terkoneksi**: Chat langsung antara pembeli dan pemilik toko terkait produk tertentu.
+*   **Attachment Upload**: Dukungan pengiriman pesan teks serta berkas dokumen/gambar sebagai lampiran chat.
+*   **Unread Badges**: Indikator pesan yang belum dibaca dan fitur mark-as-read.
+
+### 📝 6. Ulasan & Penilaian (Reviews)
+*   **Rating & Ulasan**: Pembeli dapat memberikan penilaian (bintang 1-5) dan testimoni tertulis untuk produk yang telah selesai dibeli/disewa.
 
 ---
 
 ## 🛠️ Tech Stack
 
 | Komponen | Teknologi |
-|----------|-----------|
-| Backend Framework | Laravel 11 |
-| Database | MySQL 8.0+ |
-| Language | PHP 8.2+ |
-| Language | PHP 8.2+ |
-| API Format | RESTful JSON |
-| Version Control | Git |
+| :--- | :--- |
+| **Backend Framework** | Laravel 11.x |
+| **Database** | MySQL 8.0+ |
+| **Language** | PHP 8.2+ |
+| **Authentication** | Laravel Sanctum & Web Guard |
+| **Payment Gateway** | Midtrans Snap API |
+| **Frontend/Views** | Blade Templates, Vanilla CSS, Vite |
+| **API Format** | RESTful JSON |
 
 ---
 
-## 🚀 Quick Start
+## 🗄️ Database Schema & Models
 
-### Prerequisites
-```
-- PHP 8.2+
-- MySQL 8.0+ (running)
-- Composer
-- Git
-```
+Database terdiri dari 14 tabel yang saling berelasi secara erat melalui Eloquent ORM:
 
-### Installation
-
-1. **Clone repository**
-```bash
-git clone https://github.com/DIMFAQ/EduPlayHub.git
-cd EduPlayHub
-```
-
-2. **Install dependencies**
-```bash
-composer install
-```
-
-3. **Setup environment**
-```bash
-cp .env.example .env
-php artisan key:generate
-```
-
-4. **Configure database** (edit `.env`)
-```
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=eduplayhub
-DB_USERNAME=root
-DB_PASSWORD=
+```mermaid
+erDiagram
+    USERS ||--o| SHOPS : "has one"
+    USERS ||--o| ORDERS : "places"
+    USERS ||--o| CART_ITEMS : "has many"
+    USERS ||--o| CONVERSATIONS : "starts (buyer)"
+    USERS ||--o| MESSAGES : "sends"
+    
+    SHOPS ||--o| PRODUCTS : "owns"
+    SHOPS ||--o| ORDERS : "receives"
+    
+    CATEGORIES ||--o| PRODUCTS : "categorizes"
+    
+    PRODUCTS ||--o| PRODUCT_IMAGES : "has many"
+    PRODUCTS ||--o| PRODUCT_VARIANTS : "has many"
+    PRODUCTS ||--o| ORDER_ITEMS : "ordered in"
+    PRODUCTS ||--o| CART_ITEMS : "added to"
+    PRODUCTS ||--o| REVIEWS : "receives"
+    
+    ORDERS ||--o| ORDER_ITEMS : "contains"
+    ORDERS ||--o| REVIEWS : "reviewed in"
+    ORDERS ||--o| PAYMENTS : "has one"
+    
+    CONVERSATIONS ||--o| MESSAGES : "contains"
+    CONVERSATIONS }|--o| PRODUCTS : "references"
 ```
 
-5. **Run migration & seed**
-```bash
-php artisan migrate --fresh --seed
-```
-
-6. **Create storage link**
-```bash
-php artisan storage:link
-```
-
-7. **Start server**
-```bash
-php artisan serve
-```
-
-Server running di: **http://localhost:8000**
+### Penjelasan Tabel Utama:
+*   `users`: Menyimpan kredensial pengguna, alamat, nomor telepon, dan peran (`buyer` atau `seller`).
+*   `shops`: Informasi toko milik seller (nama toko, deskripsi, saldo, rating toko).
+*   `categories`: Kategori produk (misal: Elektronik, Kamera, Alat Lab).
+*   `products`: Detail produk, tipe transaksi (`rentable`/`sellable`), harga jual/sewa, lokasi, dan stok.
+*   `cart_items`: Keranjang belanja temporer pengguna sebelum melakukan checkout.
+*   `orders`: Data transaksi induk (nomor order, total harga, status pembayaran Midtrans, alamat pengiriman, tipe transaksi).
+*   `order_items`: Detail produk yang dibeli/disewa pada suatu transaksi.
+*   `vouchers`: Kupon diskon aktif yang dapat digunakan pembeli.
+*   `conversations` & `messages`: Menyimpan riwayat chat dan file attachment antara buyer dan seller.
+*   `reviews`: Penilaian bintang dan ulasan produk oleh pembeli.
 
 ---
 
-## 📚 API Endpoints
-
-### 🛍️ CHECKOUT
-```
-POST /api/checkout              → Create pesanan baru
-GET /api/checkout/{id}          → Get detail pesanan
-```
-
-### 💳 PAYMENT
-```
-GET /api/payment/{id}           → Get QRIS info
-POST /api/payment/upload        → Upload bukti pembayaran
-POST /api/payment/verify        → [ADMIN] Verifikasi pembayaran
-GET /api/payment/pending-verifs → [ADMIN] List pending payments
-```
-
----
-
-## 📖 Example Request/Response
-
-### 1. Checkout
-```bash
-POST /api/checkout
-Content-Type: application/json
-
-{
-  "user_id": 1,
-  "items": [
-    {"product_id": 1, "quantity": 1},
-    {"product_id": 2, "quantity": 2}
-  ]
-}
-```
-
-**Response (201):**
-```json
-{
-  "message": "Checkout berhasil",
-  "order": {
-    "id": 1,
-    "user_id": 1,
-    "total_price": "25000000.00",
-    "status": "pending",
-    "itemPesanan": [...],
-    "pembayaran": {...}
-  }
-}
-```
-
-### 2. Get Payment Info
-```bash
-GET /api/payment/1
-```
-
-**Response (200):**
-```json
-{
-  "order_id": 1,
-  "amount": "25000000.00",
-  "payment_status": "pending",
-  "qris_code": "000201263600...",
-  "qris_image_url": "https://api.qrserver.com/...",
-  "instructions": "Gunakan aplikasi e-wallet untuk memindai QRIS"
-}
-```
-
-### 3. Upload Proof
-```bash
-POST /api/payment/upload
-Content-Type: multipart/form-data
-
-Form Data:
-- order_id: 1
-- proof_image: [screenshot.jpg]
-```
-
-**Response (200):**
-```json
-{
-  "message": "Bukti pembayaran berhasil diupload",
-  "image_url": "http://localhost:8000/storage/payment_proofs/..."
-}
-```
-
----
-
-## 🗄️ Database Schema
-
-### Tabel Structure
-
-**produk** (produk)
-```
-id, name, description, price, stock, image_url, type, timestamps
-```
-
-**pesanan** (orders)
-```
-id, user_id (FK), total_price, status, timestamps
-```
-
-**item_pesanan** (order_items)
-```
-id, pesanan_id (FK), produk_id (FK), quantity, unit_price, subtotal, timestamps
-```
-
-**pembayaran** (payments)
-```
-id, pesanan_id (FK), amount, status, proof_image_path, qris_code, verified_at, timestamps
-```
-
----
-
-## 📁 Project Structure
+## 📁 Struktur Folder Project
 
 ```
 eduplay-backend/
 ├── app/
 │   ├── Http/
-│   │   └── Controllers/
-│   │       ├── CheckoutController.php
-│   │       └── PaymentController.php
-│   └── Models/
-│       ├── Product.php
-│       ├── Order.php
-│       ├── OrderItem.php
-│       ├── Payment.php
-│       └── User.php
-│
+│   │   ├── Controllers/
+│   │   │   ├── Api/                     # REST API Controllers (Sanctum)
+│   │   │   │   ├── AuthController.php
+│   │   │   │   ├── CategoryController.php
+│   │   │   │   ├── ChatController.php
+│   │   │   │   ├── ProductController.php
+│   │   │   │   ├── ReviewController.php
+│   │   │   │   └── TransactionController.php
+│   │   │   ├── AuthController.php       # Web Auth Controller
+│   │   │   ├── CartController.php       # Web Cart Controller
+│   │   │   ├── CatalogController.php    # Web Catalog Controller
+│   │   │   ├── CheckoutController.php   # Web Checkout Controller
+│   │   │   ├── MidtransController.php   # Midtrans Webhook Callback
+│   │   │   └── SellerController.php     # Web Seller Dashboard
+│   │   └── Requests/                    # Form Validation Requests
+│   ├── Models/                          # Eloquent Models (User, Product, Order, dll)
+│   └── Services/
+│       └── MidtransService.php          # SDK Integration & Signature Verifier
+├── config/                              # Configuration files (services.php, database.php)
 ├── database/
-│   ├── migrations/
-│   │   ├── ...create_produk_table.php
-│   │   ├── ...create_pesanan_table.php
-│   │   ├── ...create_item_pesanan_table.php
-│   │   └── ...create_pembayaran_table.php
-│   └── seeders/
-│       ├── ProductSeeder.php
-│       └── DatabaseSeeder.php
-│
+│   ├── migrations/                      # Database Schema Migrations
+│   └── seeders/                         # Seeders untuk Sample Users, Shop & Products
+├── resources/
+│   ├── views/                           # Blade Templates untuk Web Frontend
+│   └── css/                             # Stylesheets
 ├── routes/
-│   └── api.php
-│
-├── SETUP_GUIDE.md              → Setup lengkap
-├── API_RESPONSE_EXAMPLES.md     → Contoh response
-├── EduPlayHub_API.postman_collection.json
-└── README.md
+│   ├── api.php                          # REST API Routes
+│   └── web.php                          # Web Application Routes
+├── SETUP_GUIDE.md                       # Panduan instalasi mandiri
+├── API_RESPONSE_EXAMPLES.md            # Contoh response API
+└── EduPlayHub_API.postman_collection.json
 ```
 
 ---
 
-## 🧪 Testing dengan Postman
+## 🚀 Panduan Instalasi & Setup Quickstart
 
-**Import collection:**
-1. Buka Postman
-2. Click `Import` → pilih file `EduPlayHub_API.postman_collection.json`
-3. Semua endpoint sudah tersedia
+### Prerequisites
+Pastikan perangkat Anda sudah terinstal:
+*   PHP 8.2 atau lebih tinggi
+*   Composer
+*   MySQL Database Server (XAMPP / Laragon / Docker)
+*   Node.js & NPM (opsional, untuk build aset Vite)
 
-**Test User (seed):**
-- ID: 1
-- Email: test@example.com
-- Password: password
+### Langkah-langkah:
 
-**Test Products:** 8 produk sudah tersedia (Laptop, Projector, Printer, dll)
+1.  **Clone Repository**
+    ```bash
+    git clone https://github.com/DIMFAQ/EduPlayHub.git
+    cd EduPlayHub
+    ```
+
+2.  **Instal Dependensi PHP**
+    ```bash
+    composer install
+    ```
+
+3.  **Salin & Konfigurasi `.env`**
+    ```bash
+    cp .env.example .env
+    ```
+    Buka file `.env` dan sesuaikan koneksi database Anda:
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=eduplayhub
+    DB_USERNAME=root
+    DB_PASSWORD=
+    ```
+
+4.  **Konfigurasi Kredensial Midtrans** (Dapatkan dari Dashboard Sandbox Midtrans Anda):
+    ```env
+    MIDTRANS_SERVER_KEY=your_sandbox_server_key_here
+    MIDTRANS_CLIENT_KEY=your_sandbox_client_key_here
+    MIDTRANS_IS_PRODUCTION=false
+    MIDTRANS_IS_SANITIZED=true
+    MIDTRANS_IS_3DS=true
+    ```
+
+5.  **Generate Application Key**
+    ```bash
+    php artisan key:generate
+    ```
+
+6.  **Jalankan Migration & Seeders**
+    Langkah ini akan membuat seluruh tabel database dan mengisinya dengan data awal (kategori, beberapa produk demo, user uji coba, dan voucher):
+    ```bash
+    php artisan migrate --fresh --seed
+    ```
+
+7.  **Buat Symbolic Link Storage**
+    Diperlukan agar file gambar yang diupload ke direktori storage dapat diakses publik melalui URL:
+    ```bash
+    php artisan storage:link
+    ```
+
+8.  **Jalankan Server Lokal**
+    ```bash
+    php artisan serve
+    ```
+    Server akan berjalan di: **[http://localhost:8000](http://localhost:8000)**
 
 ---
 
-## 📋 Test Flow (Demo)
+## 📚 API Endpoints (REST API)
 
-```
-1. POST /api/checkout
-   ↓ Buat pesanan baru
-   
-2. GET /api/payment/{order_id}
-   ↓ Terima QRIS code
+Endpoint ini dilindungi oleh autentikasi token Sanctum kecuali pada rute publik. Gunakan header `Authorization: Bearer <your_token>` untuk rute terproteksi.
 
-3. POST /api/payment/upload
-   ↓ Upload bukti pembayaran (image)
+### 🔐 1. Autentikasi (`/api/auth`)
+| Method | Endpoint | Deskripsi | Auth? |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Mendaftarkan akun pembeli/penjual baru | ❌ |
+| `POST` | `/api/auth/login` | Login & mendapatkan Bearer Token | ❌ |
+| `POST` | `/api/auth/logout` | Revoke token aktif saat ini | ✅ |
+| `GET` | `/api/auth/me` | Mendapatkan data informasi user saat ini | ✅ |
+| `PUT` | `/api/auth/profile` | Mengubah informasi profil user | ✅ |
+| `POST` | `/api/auth/avatar` | Upload foto profil baru (avatar) | ✅ |
 
-4. POST /api/payment/verify [ADMIN]
-   ↓ Verifikasi pembayaran
+### 📦 2. Produk & Kategori (`/api/products` & `/api/categories`)
+| Method | Endpoint | Deskripsi | Auth? |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/categories` | Mendapatkan semua kategori produk | ❌ |
+| `GET` | `/api/products` | Mendapatkan list produk (support filter & search) | ❌ |
+| `GET` | `/api/products/{slug}` | Mendapatkan detail produk berdasarkan slug | ❌ |
 
-5. GET /api/checkout/{order_id}
-   ↓ Lihat order status = "paid" ✅
-```
+### 💳 3. Transaksi (`/api/transactions`)
+| Method | Endpoint | Deskripsi | Auth? |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/transactions` | Mendapatkan riwayat transaksi pengguna (paginate) | ✅ |
+| `POST` | `/api/transactions` | Membuat checkout baru & mendapatkan Midtrans Snap Token | ✅ |
+| `GET` | `/api/transactions/{id}` | Mendapatkan detail informasi transaksi | ✅ |
+| `PATCH` | `/api/transactions/{id}/cancel` | Membatalkan transaksi pending | ✅ |
+| `GET` | `/api/transactions/{id}/status`| Cek status transaksi & pembayaran | ✅ |
+
+### 💬 4. Obrolan / Chat (`/api/chats`)
+| Method | Endpoint | Deskripsi | Auth? |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/chats` | Mendapatkan daftar obrolan aktif (Rooms) | ✅ |
+| `POST` | `/api/chats` | Membuka/membuat chat room baru dengan seller produk | ✅ |
+| `GET` | `/api/chats/{roomId}/messages`| Mendapatkan riwayat pesan di dalam room chat | ✅ |
+| `POST` | `/api/chats/{roomId}/messages`| Mengirim pesan teks baru ke room | ✅ |
+| `POST` | `/api/chats/{roomId}/upload` | Mengunggah file attachment di room chat | ✅ |
+| `PATCH`| `/api/chats/{roomId}/read` | Menandai seluruh pesan masuk sebagai telah dibaca | ✅ |
+
+### 📝 5. Ulasan Produk (`/api/reviews`)
+| Method | Endpoint | Deskripsi | Auth? |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/products/{productId}/reviews`| Mendapatkan semua rating & ulasan suatu produk | ❌ |
+| `POST` | `/api/reviews` | Membuat ulasan baru untuk produk yang telah dibeli/sewa | ✅ |
+
+### 🔔 6. Webhook Midtrans Callback
+| Method | Endpoint | Deskripsi | Auth? |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/midtrans/callback` | Endpoint tujuan callback dari Midtrans (IPN) | ❌ |
 
 ---
 
-## 🔑 Key Features
+## 💻 Rute Web Utama (Web Application)
 
-| Fitur | Deskripsi |
-|-------|-----------|
-| **Validation** | Input validation lengkap di semua endpoint |
-| **Error Handling** | Custom error response dengan HTTP status |
-| **Stock Management** | Auto decrement saat checkout |
-| **Eloquent ORM** | Relasi model lengkap (hasMany, belongsTo, hasOne) |
-| **Transaction** | Database transaction untuk checkout |
-| **File Upload** | Simpan bukti pembayaran di storage |
-| **QRIS Simulasi** | Generate QRIS code & QR image dummy |
+Selain API, Anda dapat membuka browser untuk menguji alur aplikasi web lengkap (menggunakan file Blade template):
+
+*   **Halaman Utama (Welcome)**: `GET /`
+*   **Autentikasi**: `GET /login` dan `GET /register`
+*   **Buyer Flow (Memerlukan Login)**:
+    *   Katalog & Detail Produk: `/katalog` ➔ `/produk/{id}`
+    *   Keranjang Belanja: `/keranjang`
+    *   Checkout & Midtrans Pay: `/checkout`
+    *   Daftar Transaksi Pembeli: `/pesanan`
+    *   Buyer Chat: `/chat`
+*   **Seller Flow (Memerlukan Login & Akun Seller)**:
+    *   Seller Dashboard: `/seller/dashboard`
+    *   Kelola Produk Toko: `/seller/produk`
+    *   Kelola Pesanan Masuk: `/seller/pesanan`
+    *   Seller Chat: `/seller/chat`
+
+---
+
+## 🧪 Pengujian Menggunakan Postman
+
+Telah disediakan file collection Postman untuk mempermudah proses testing seluruh endpoint API:
+1.  Buka aplikasi **Postman**.
+2.  Klik tombol **Import** di kiri atas.
+3.  Pilih file `EduPlayHub_API.postman_collection.json` di root directory project ini.
+4.  Gunakan akun uji coba berikut (dari hasil database seeding):
+    *   **Email**: `test@example.com` (atau akun seeder lain)
+    *   **Password**: `password`
 
 ---
 
 ## 🐛 Troubleshooting
 
-| Masalah | Solusi |
-|--------|--------|
-| **"Table doesn't exist"** | `php artisan migrate:fresh --seed` |
-| **"vendor not found"** | `composer install` |
-| **"Permission denied"** | `chmod -R 755 storage` |
-| **"APP_KEY missing"** | `php artisan key:generate` |
-| **"Database connection error"** | Cek `.env` DB config & MySQL running |
-
----
-
-## 📝 Environment Variables
-
-```env
-APP_NAME=EduPlayHub
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=eduplayhub
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
----
-
-## 🚧 Future Improvements
-
-- [ ] Integration Midtrans/Xendit payment gateway
-- [ ] Fitur rental (date range & durasi)
-- [ ] Authentication (JWT/Sanctum)
-- [ ] Admin dashboard
-- [ ] Email notifications
-- [ ] Unit & integration tests
-- [ ] Pagination & search
-- [ ] Rate limiting
-
----
-
-## 📄 Dokumentasi Lengkap
-
-- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Setup step-by-step
-- **[API_RESPONSE_EXAMPLES.md](API_RESPONSE_EXAMPLES.md)** - Contoh request/response
-- **[Laravel Documentation](https://laravel.com/docs)** - Official docs
-
----
-
-## 👤 Author
-
-**DIMFAQ** (Dimas Faqih)
-- Email: dimasfaqih005@gmail.com
-- GitHub: [@DIMFAQ](https://github.com/DIMFAQ)
+*   **Error: "Table doesn't exist"**:
+    Pastikan database server Anda aktif, nama database di `.env` sudah benar, dan jalankan perintah `php artisan migrate --fresh --seed`.
+*   **Error: "Unauthorized" pada Rute API**:
+    Pastikan Anda melampirkan header `Authorization: Bearer <token_anda>` yang didapatkan dari response `POST /api/auth/login`.
+*   **Error: Storage link tidak berfungsi**:
+    Di Windows, jalankan command prompt sebagai Administrator saat mengeksekusi `php artisan storage:link` jika mengalami kendala pembuatan symbolic link.
 
 ---
 
 ## 📄 License
+Project open-source ini ditujukan untuk kebutuhan akademis mata kuliah E-Business.
 
-Open source project untuk keperluan akademis.
-
----
-
-## ✨ Status
-
-🟢 **Production Ready** - Siap untuk demo!
-
-Last Updated: April 20, 2026
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Last Updated: May 30, 2026
