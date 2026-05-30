@@ -35,6 +35,7 @@ class Order extends Model {
         'payment_method','subtotal','shipping_cost','discount','total',
         'voucher_code','rental_start','rental_end','rental_days',
         'midtrans_order_id','midtrans_token','payment_status','order_code',
+        'notes', 'type_transaction', 'duration_days',
     ];
     protected $casts = [
         'rental_start' => 'date',

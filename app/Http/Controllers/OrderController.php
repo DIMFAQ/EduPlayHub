@@ -15,6 +15,11 @@ class OrderController extends Controller
 
         $query = Order::where('shop_id', $shop->id)
             ->with(['user', 'items.product'])
+            // Only show orders that are ready to process (either paid or COD)
+            ->where(function ($q) {
+                $q->where('payment_status', 'paid')
+                  ->orWhere('payment_method', 'cod');
+            })
             ->when($request->status && $request->status !== 'semua',
                 fn($q) => $q->where('status', $request->status))
             ->when($request->search, function ($q) use ($request) {
@@ -27,8 +32,14 @@ class OrderController extends Controller
         $orders = $query->paginate(10)->withQueryString();
 
         $statusCounts = [
-            'semua'   => Order::where('shop_id', $shop->id)->count(),
-            'masuk'   => Order::where('shop_id', $shop->id)->where('status', 'masuk')->count(),
+            'semua'   => Order::where('shop_id', $shop->id)->where(function ($q) {
+                            $q->where('payment_status', 'paid')
+                              ->orWhere('payment_method', 'cod');
+                         })->count(),
+            'masuk'   => Order::where('shop_id', $shop->id)->where('status', 'masuk')->where(function ($q) {
+                            $q->where('payment_status', 'paid')
+                              ->orWhere('payment_method', 'cod');
+                         })->count(),
             'proses'  => Order::where('shop_id', $shop->id)->where('status', 'proses')->count(),
             'kirim'   => Order::where('shop_id', $shop->id)->where('status', 'kirim')->count(),
             'selesai' => Order::where('shop_id', $shop->id)->where('status', 'selesai')->count(),
@@ -62,8 +73,18 @@ class OrderController extends Controller
         
         $query = Order::where('user_id', $user->id)
             ->with(['items.product', 'shop'])
-            ->when($request->status && $request->status !== 'semua',
-                fn($q) => $q->where('status', $request->status))
+            ->when($request->status && $request->status !== 'semua', function ($q) use ($request) {
+                if ($request->status === 'pending') {
+                    return $q->where('payment_status', 'pending')->where('payment_method', '!=', 'cod');
+                }
+                if ($request->status === 'masuk') {
+                    return $q->where('status', 'masuk')->where(function ($sub) {
+                        $sub->where('payment_status', 'paid')
+                            ->orWhere('payment_method', 'cod');
+                    });
+                }
+                return $q->where('status', $request->status);
+            })
             ->when($request->type && $request->type !== 'semua',
                 fn($q) => $q->where('type', $request->type))
             ->when($request->search, function ($q) use ($request) {
@@ -78,8 +99,11 @@ class OrderController extends Controller
 
         $statusCounts = [
             'semua'    => Order::where('user_id', $user->id)->count(),
-            'pending'  => Order::where('user_id', $user->id)->where('payment_status', 'pending')->count(),
-            'masuk'    => Order::where('user_id', $user->id)->where('status', 'masuk')->count(),
+            'pending'  => Order::where('user_id', $user->id)->where('payment_status', 'pending')->where('payment_method', '!=', 'cod')->count(),
+            'masuk'    => Order::where('user_id', $user->id)->where('status', 'masuk')->where(function ($sub) {
+                            $sub->where('payment_status', 'paid')
+                                ->orWhere('payment_method', 'cod');
+                          })->count(),
             'proses'   => Order::where('user_id', $user->id)->where('status', 'proses')->count(),
             'kirim'    => Order::where('user_id', $user->id)->where('status', 'kirim')->count(),
             'selesai'  => Order::where('user_id', $user->id)->where('status', 'selesai')->count(),

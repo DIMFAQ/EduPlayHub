@@ -111,14 +111,18 @@ function appendMsg(body, time, mine, initials) {
 // Poll for new messages every 3s
 let lastId = {{ $conversation->messages->last()?->id ?? 0 }};
 setInterval(async () => {
-  const res = await fetch("{{ route('chat.messages', $otherUser) }}");
-  const msgs = await res.json();
-  msgs.forEach(m => {
-    if (m.id > lastId) {
-      lastId = m.id;
-      if (!m.mine) appendMsg(m.body, m.created_at, false, m.sender.substring(0,2).toUpperCase());
-    }
-  });
+  try {
+    const res = await fetch("{{ route('chat.messages', $otherUser) }}");
+    const msgs = await res.json();
+    msgs.forEach(m => {
+      if (m.id > lastId) {
+        lastId = m.id;
+        if (!m.mine) appendMsg(m.body, m.created_at, false, m.sender.substring(0,2).toUpperCase());
+      }
+    });
+  } catch (e) {
+    console.error("Gagal polling pesan:", e);
+  }
 }, 3000);
 
 // Auto-resize textarea

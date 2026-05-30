@@ -85,7 +85,7 @@ class ChatController extends Controller
 
         $conversation->update(['last_message_at' => now()]);
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson() || $request->isJson()) {
             return response()->json([
                 'id'         => $message->id,
                 'body'       => $message->body,

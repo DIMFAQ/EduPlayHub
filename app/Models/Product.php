@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     protected $fillable = [
-        'shop_id', 'category_id', 'name', 'description', 'image',
+        'shop_id', 'category_id', 'name', 'slug', 'description', 'image',
         'price_rent', 'price_buy', 'rentable', 'sellable',
         'stock', 'location', 'rating', 'total_rented', 'is_active',
     ];
@@ -22,6 +22,19 @@ class Product extends Model
         'sellable'  => 'boolean',
         'is_active' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = \Illuminate\Support\Str::slug($product->name);
+            }
+        });
+        static::updating(function ($product) {
+            $product->slug = \Illuminate\Support\Str::slug($product->name);
+        });
+    }
 
     // ─── RELATIONS ──────────────────────────────────
     public function shop()     { return $this->belongsTo(Shop::class); }

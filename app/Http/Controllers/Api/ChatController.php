@@ -147,7 +147,7 @@ class ChatController extends Controller
         $message = Message::create([
             'conversation_id' => $roomId,
             'sender_id' => $request->user()->id,
-            'message' => $path,
+            'body' => $path,
             'type' => 'file',
             'attachment_url' => asset('storage/' . $path),
         ]);

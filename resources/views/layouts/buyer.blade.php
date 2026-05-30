@@ -42,9 +42,7 @@ body::before {
 .logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;letter-spacing:-0.3px;text-decoration:none;font-family:'Syne',sans-serif;background:linear-gradient(135deg,var(--indigo-light),var(--orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .logo-icon{width:20px;height:20px;color:var(--indigo-light)}
 .nav-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(255,255,255,0.06);padding:4px;border-radius:40px;border:1px solid var(--card-border);backdrop-filter:blur(10px)}
-.nav-link{font-size:13px;text-decoration:none;color:var(--muted);padding:6px 18px;border-radius:40px;transition:all 0.2s;font-weight:500;cursor:none}
-.nav-link:hover{color:var(--text);background:rgba(255,255,255,0.08)}
-.nav-link.active{color:var(--text);background:rgba(79,70,229,0.2);box-shadow:0 2px 8px rgba(129,140,248,0.2)}
+.nav-link{font-size:13px;text-decoration:none;color:var(--muted);padding:6px 18px;border-radius:40px;transition:all 0.2s;font-weight:500;cursor:pointer}
 .nav-icons{display:flex;gap:8px;align-items:center;position:relative;z-index:1}
 .icon-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--card-border);background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.2s;cursor:pointer;text-decoration:none;position:relative;backdrop-filter:blur(10px)}
 .icon-btn svg{width:14px;height:14px;stroke-width:1.7}
@@ -59,7 +57,7 @@ body::before {
 .profile-avatar{width:100%;height:100%;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .profile-avatar img{width:100%;height:100%;object-fit:cover}
 .profile-dropdown{position:absolute;right:0;top:44px;min-width:200px;background:rgba(13,13,31,0.95);border-radius:16px;border:1px solid var(--card-border);box-shadow:0 8px 32px rgba(0,0,0,0.4);padding:10px;display:flex;flex-direction:column;gap:6px;z-index:50;backdrop-filter:blur(20px)}
-.profile-dropdown a,.profile-dropdown button{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--text);font-size:13px;font-weight:600;border:none;background:transparent;cursor:none;font-family:inherit;transition:all 0.2s}
+.profile-dropdown a,.profile-dropdown button{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--text);font-size:13px;font-weight:600;border:none;background:transparent;cursor:pointer;font-family:inherit;transition:all 0.2s}
 .profile-dropdown a:hover,.profile-dropdown button:hover{background:rgba(79,70,229,0.2);color:var(--indigo-light)}
 .profile-meta{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);font-size:12px;color:var(--muted)}
 .profile-name{font-weight:700;color:var(--text);font-size:13px}

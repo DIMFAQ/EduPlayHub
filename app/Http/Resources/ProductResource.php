@@ -20,6 +20,7 @@ class ProductResource extends JsonResource
             'category' => [
                 'id' => $this->category->id ?? null,
                 'name' => $this->category->name ?? null,
+                'slug' => $this->category->slug ?? null,
             ],
             'shop' => [
                 'id' => $this->shop->id ?? null,
@@ -32,7 +33,7 @@ class ProductResource extends JsonResource
             'stock' => $this->stock,
             'rating' => round($avgRating, 1),
             'review_count' => $reviewCount,
-            'image' => $this->image ? asset('storage/' . $this->image) : null,
+            'image' => $this->mainImage(),
             'images' => $this->images->map(function ($img) {
                 return [
                     'id' => $img->id,

@@ -725,17 +725,17 @@ let products = [];
 
 async function loadProductsFromAPI() {
   try {
-    const res = await fetch('/api/products?limit=20');
+    const res = await fetch('/api/products?per_page=50');
     const data = await res.json();
     if (data.data && data.data.length > 0) {
       products = data.data.map(p => ({
         id: p.id,
         name: p.name,
         slug: p.slug,
-        tag: p.category?.type === 'play' ? 'play' : 'edu',
-        img: p.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=60',
-        rent: p.rent_price ? `Rp ${new Intl.NumberFormat('id-ID').format(p.rent_price)}/hari` : 'Hubungi',
-        buy: p.sale_price ? `Rp ${new Intl.NumberFormat('id-ID').format(p.sale_price)}` : null
+        tag: (p.category?.slug === 'konsol-game' || p.category?.slug === 'virtual-reality') ? 'play' : 'edu',
+        img: p.image || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=60',
+        rent: p.price_rent ? `Rp ${new Intl.NumberFormat('id-ID').format(p.price_rent)}/hari` : 'Hubungi',
+        buy: p.price_buy ? `Rp ${new Intl.NumberFormat('id-ID').format(p.price_buy)}` : null
       }));
       initializeMarquees();
     }

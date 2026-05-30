@@ -144,6 +144,7 @@ class CheckoutController extends Controller
                 'user_id'        => $user->id,
                 'shop_id'        => $shopId,
                 'type'           => $request->trans_type,
+                'type_transaction' => $request->trans_type === 'sewa' ? 'rent' : 'buy',
                 'status'         => 'masuk',
                 'payment_status' => 'pending',
                 'recipient_name' => $request->recipient_name,
@@ -160,6 +161,7 @@ class CheckoutController extends Controller
                 'rental_start'   => $request->rental_start,
                 'rental_end'     => $request->rental_end,
                 'rental_days'    => $rentalDays,
+                'duration_days'  => $rentalDays,
             ]);
 
             foreach ($items as $item) {

@@ -6,7 +6,7 @@
 .container{max-width:1200px;margin:0 auto;padding:0 2rem 4rem;position:relative;z-index:1}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem}
 .page-header h1{font-size:1.75rem;font-weight:700;letter-spacing:-0.4px;font-family:'Syne',sans-serif;color:var(--text)}
-.back-link{display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.1rem;border-radius:40px;font-size:0.85rem;font-weight:500;background:transparent;border:1px solid var(--card-border);text-decoration:none;color:var(--muted);transition:all 0.2s;cursor:none}
+.back-link{display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.1rem;border-radius:40px;font-size:0.85rem;font-weight:500;background:transparent;border:1px solid var(--card-border);text-decoration:none;color:var(--muted);transition:all 0.2s;cursor:pointer}
 .back-link:hover{border-color:rgba(129,140,248,0.5);color:var(--indigo-light)}
 .cart-grid{display:grid;grid-template-columns:1fr 340px;gap:1.25rem;align-items:start}
 .cart-items{background:var(--card-bg);border-radius:20px;padding:1.5rem;border:1px solid var(--card-border);box-shadow:var(--shadow);backdrop-filter:blur(20px)}

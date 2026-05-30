@@ -57,59 +57,96 @@
   </div>
 
   <div class="chat-input">
-    <form id="messageForm" style="display:flex;gap:12px;width:100%" onsubmit="sendMessage(event)">
-      @csrf
-      <textarea class="input-box" id="messageInput" name="body" placeholder="Ketik pesan..." rows="1" required></textarea>
-      <button type="submit" class="send-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
-    </form>
+    <textarea class="input-box" id="messageInput" name="body" placeholder="Ketik pesan..." rows="1" onkeydown="handleKey(event)"></textarea>
+    <button class="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
   </div>
 </div>
 
 <script>
 const userId = {{ $otherUser->id }};
+const area = document.getElementById('messagesArea');
+const sendUrl = '{{ route("chat.send", $otherUser) }}';
+const csrf = document.querySelector('meta[name="csrf-token"]').content;
+const myInitials = '{{ auth()->user()->initials() }}';
 
 // Auto-scroll to bottom
 function scrollToBottom() {
-  const area = document.getElementById('messagesArea');
   area.scrollTop = area.scrollHeight;
 }
 
-function sendMessage(e) {
-  e.preventDefault();
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { 
+    e.preventDefault(); 
+    sendMessage(); 
+  }
+}
+
+async function sendMessage() {
   const input = document.getElementById('messageInput');
   const body = input.value.trim();
   if (!body) return;
+  
+  input.value = '';
+  input.style.height = 'auto';
 
-  fetch('{{ route("chat.send", "") }}/' + userId, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-    },
-    body: JSON.stringify({ body })
-  })
-  .then(r => r.json())
-  .then(msg => {
-    const html = `
-      <div class="msg-row mine">
-        <div class="msg-av">{{ auth()->user()->initials() }}</div>
-        <div>
-          <div class="bubble">${msg.body}</div>
-          <div class="msg-time">${msg.created_at}</div>
-        </div>
-      </div>
-    `;
-    document.getElementById('messagesArea').innerHTML += html;
-    input.value = '';
-    scrollToBottom();
-  });
+  try {
+    const res = await fetch(sendUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      },
+      body: JSON.stringify({ body })
+    });
+    const msg = await res.json();
+    appendMsg(msg.body, msg.created_at, true, myInitials);
+  } catch (e) {
+    console.error("Gagal mengirim pesan:", e);
+  }
 }
 
+function appendMsg(body, time, mine, initials) {
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (mine ? ' mine' : '');
+  row.innerHTML = `
+    <div class="msg-av">${initials}</div>
+    <div>
+      <div class="bubble">${body}</div>
+      <div class="msg-time">${time}</div>
+    </div>
+  `;
+  area.appendChild(row);
+  scrollToBottom();
+}
+
+// Poll for new messages every 3s
+let lastId = {{ $conversation->messages->last()?->id ?? 0 }};
+setInterval(async () => {
+  try {
+    const res = await fetch("{{ route('chat.messages', $otherUser) }}");
+    const msgs = await res.json();
+    msgs.forEach(m => {
+      if (m.id > lastId) {
+        lastId = m.id;
+        if (!m.mine) appendMsg(m.body, m.created_at, false, m.sender.substring(0,2).toUpperCase());
+      }
+    });
+  } catch (e) {
+    console.error("Gagal polling pesan:", e);
+  }
+}, 3000);
+
 scrollToBottom();
+
+// Auto-resize textarea
+document.getElementById('messageInput').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
 </script>
 @endsection

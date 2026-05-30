@@ -131,16 +131,7 @@
           <div class="pay-options">
             <div class="pay-card selected" onclick="setPay('transfer', this)">
               <div class="pay-icon">🏦</div>
-              <div class="pay-label">Transfer Bank</div>
-            </div>
-            <div class="pay-card" onclick="setPay('cod', this)">
-              <div class="pay-icon">💵</div>
-              <div class="pay-label">Bayar di Tempat</div>
-            </div>
-            <div class="pay-card" onclick="setPay('ewallet', this)">
-              <div class="pay-icon">📱</div>
-              <div class="pay-label">E-Wallet</div>
-            </div>
+              <div class="pay-label">Midtrans</div>
           </div>
           <input type="hidden" name="payment_method" id="paymentInput" value="transfer">
         </div>
@@ -177,7 +168,7 @@
 <script>
 const itemPrices = {
   @foreach($items as $item)
-    {{ $item->id }}: { rent: {{ $item->product->price_rent ?? 0 }}, buy: {{ $item->product->price_buy ?? 0 }}, qty: {{ $item->quantity }} },
+    {{ $item->product_id }}: { rent: {{ $item->product->price_rent ?? 0 }}, buy: {{ $item->product->price_buy ?? 0 }}, qty: {{ $item->quantity }} },
   @endforeach
 };
 const initialType = @json(request('type', 'beli'));

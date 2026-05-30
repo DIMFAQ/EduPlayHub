@@ -33,7 +33,7 @@ class ReviewController extends Controller
             'product_id' => 'required|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'sometimes|string|max:500',
-            'transaction_id' => 'sometimes|exists:orders,id',
+            'transaction_id' => 'required|exists:orders,id',
         ]);
 
         $review = Review::create([
@@ -41,7 +41,7 @@ class ReviewController extends Controller
             'product_id' => $validated['product_id'],
             'rating' => $validated['rating'],
             'comment' => $validated['comment'] ?? null,
-            'transaction_id' => $validated['transaction_id'] ?? null,
+            'order_id' => $validated['transaction_id'],
         ]);
 
         return response()->json([
